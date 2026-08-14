@@ -187,11 +187,11 @@ export default function DayTabs({ day, stravaActivityId, isToday, garminLivetrac
               </div>
             )}
 
-            {/* Dinner */}
+            {/* Food stops */}
             <div>
               <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
                 <UtensilsCrossed className="w-3.5 h-3.5" />
-                Dinner
+                Food Stops
                 {day.dinner_booked && (
                   <span className="ml-auto badge-completed px-1.5 py-0.5 rounded text-xs flex items-center gap-1 normal-case">
                     <CheckCircle2 className="w-3 h-3" /> Booked

@@ -20,7 +20,7 @@ const ALL_COORDS: [number, number][] = [
   [-73.7902, 42.2528],  // 2: Hudson
   [-73.7562, 42.6526],  // 3: Albany
   [-73.5843, 43.2634],  // 4: Fort Edward
-  [-73.4207, 43.8503],  // 5: Ticonderoga
+  [-73.4334, 43.9453],  // 5: Crown Point
   [-73.4529, 44.6995],  // 6: Plattsburgh
   [-73.3617, 45.0835],  // 7: Lacolle, QC
   [-73.5674, 45.5019],  // 8: Montreal (finish)
@@ -31,8 +31,8 @@ const DAY_SEGMENTS = [
   { day: 2, from: 'Poughkeepsie', to: 'Hudson',        color: '#06b6d4', coords: ALL_COORDS.slice(1, 3) },
   { day: 3, from: 'Hudson',       to: 'Albany',        color: '#60a5fa', coords: ALL_COORDS.slice(2, 4) },
   { day: 4, from: 'Albany',       to: 'Fort Edward',   color: '#a78bfa', coords: ALL_COORDS.slice(3, 5) },
-  { day: 5, from: 'Fort Edward',  to: 'Ticonderoga',   color: '#e879f9', coords: ALL_COORDS.slice(4, 6) },
-  { day: 6, from: 'Ticonderoga',  to: 'Plattsburgh',   color: '#fb923c', coords: ALL_COORDS.slice(5, 7) },
+  { day: 5, from: 'Fort Edward',  to: 'Crown Point',   color: '#e879f9', coords: ALL_COORDS.slice(4, 6) },
+  { day: 6, from: 'Crown Point',  to: 'Plattsburgh',   color: '#fb923c', coords: ALL_COORDS.slice(5, 7) },
   { day: 7, from: 'Plattsburgh',  to: 'Lacolle',       color: '#f472b6', coords: ALL_COORDS.slice(6, 8) },
   { day: 8, from: 'Lacolle',      to: 'Montreal',      color: '#f87171', coords: ALL_COORDS.slice(7, 9) },
 ];
@@ -43,8 +43,8 @@ const OVERNIGHT_STOPS: { day: number; coord: [number, number]; color: string; fr
   { day: 2, coord: [-73.7902, 42.2528], color: '#06b6d4', from: 'Poughkeepsie', to: 'Hudson'       },
   { day: 3, coord: [-73.7562, 42.6526], color: '#60a5fa', from: 'Hudson',       to: 'Albany'       },
   { day: 4, coord: [-73.5843, 43.2634], color: '#a78bfa', from: 'Albany',       to: 'Fort Edward'  },
-  { day: 5, coord: [-73.4207, 43.8503], color: '#e879f9', from: 'Fort Edward',  to: 'Ticonderoga'  },
-  { day: 6, coord: [-73.4529, 44.6995], color: '#fb923c', from: 'Ticonderoga',  to: 'Plattsburgh'  },
+  { day: 5, coord: [-73.4334, 43.9453], color: '#e879f9', from: 'Fort Edward',  to: 'Crown Point'  },
+  { day: 6, coord: [-73.4529, 44.6995], color: '#fb923c', from: 'Crown Point',  to: 'Plattsburgh'  },
   { day: 7, coord: [-73.3617, 45.0835], color: '#f472b6', from: 'Plattsburgh',  to: 'Lacolle'      },
 ];
 

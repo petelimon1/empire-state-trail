@@ -22,7 +22,7 @@ export const EST_ROUTE_COORDINATES: [number, number][] = [
   [-73.7902, 42.2528], // Hudson
   [-73.7562, 42.6526], // Albany
   [-73.5843, 43.2634], // Fort Edward
-  [-73.4207, 43.8503], // Ticonderoga
+  [-73.4334, 43.9453], // Crown Point
   [-73.4529, 44.6995], // Plattsburgh
   [-73.3617, 45.0835], // Lacolle, QC
   [-73.5674, 45.5019], // Montreal, QC
@@ -43,7 +43,11 @@ export const DAYS_DATA: DayData[] = [
     accommodation_url: 'https://www.airbnb.com.au/rooms/14994000',
     accommodation_booking_ref: null,
     accommodation_notes: 'Private bathroom. Owner has cats. Bikes OK inside. Holiday weekend — hotels ~2x normal price.',
-    dinner_options: [],
+    dinner_options: [
+      { name: "Elmsford Deli", notes: '~30 mi in — early lunch/snack + sports drink' },
+      { name: 'Trailside Cafe', notes: '~50 mi in — lunch' },
+      { name: "Klobacher's Market", notes: "~70 mi in — pastry/snack + sports drink. Not much between here and Poughkeepsie, stock up on water." },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
@@ -66,7 +70,12 @@ export const DAYS_DATA: DayData[] = [
     accommodation_url: 'https://www.airbnb.com/rooms/22437701',
     accommodation_booking_ref: null,
     accommodation_notes: 'Bikes OK inside the house. Refundable up to Sept 4. Close to town for dinner and a stroll.',
-    dinner_options: [],
+    dinner_options: [
+      { name: "Alex's", notes: 'Opens 8am — breakfast, 4 min ride from the Airbnb' },
+      { name: 'Dry Fly Coffee', notes: '~10 mi in — coffee' },
+      { name: 'Sorry, Charlie', notes: '~26 mi in — lunch' },
+      { name: "Fortune's Ice Cream", notes: '~40 mi in' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
@@ -85,11 +94,16 @@ export const DAYS_DATA: DayData[] = [
     elevation_m: 379,
     route_url: 'https://www.strava.com/routes/3509774140284331634',
     strava_activity_id: null,
-    accommodation_name: 'TBD',
+    accommodation_name: 'Booked — name TBD',
     accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: 'Not booked yet. The Argus Hotel (~$200/night) is short walk from downtown / Center Square — cocktail lounge closed Sundays.',
-    dinner_options: [],
+    accommodation_notes: '$115.52 charged Aug 28, free cancellation until 3pm Sep 5. Property name not yet noted in the planning doc.',
+    dinner_options: [
+      { name: "Goodboybob or Kitty's Market", notes: 'Both open 8am — bacon egg and cheese' },
+      { name: 'Saisonnier', notes: 'Opens 11:30am, ~14 mi in — cheeky morning beer, short day' },
+      { name: 'Smash and Dash Burgers', notes: '~16 mi in — lunch' },
+      { name: "Smile's Soft Serve", notes: '~26 mi in' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: 'Shorter day — could explore breweries in Albany.',
@@ -112,7 +126,11 @@ export const DAYS_DATA: DayData[] = [
     accommodation_url: 'https://www.airbnb.com.au/rooms/1563889805245117698',
     accommodation_booking_ref: null,
     accommodation_notes: 'Bikes OK inside the house.',
-    dinner_options: [],
+    dinner_options: [
+      { name: 'Breakfast', notes: 'Depends on Albany accommodation' },
+      { name: 'Damn Good Jerky', notes: '~27 mi in' },
+      { name: 'Amigos Cantina', notes: '~39 mi in — lunch' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
@@ -124,35 +142,35 @@ export const DAYS_DATA: DayData[] = [
   {
     id: 5,
     date: '2026-09-08',
-    title: 'Fort Edward to Ticonderoga',
+    title: 'Fort Edward to Crown Point',
     from_location: 'Fort Edward',
-    to_location: 'Ticonderoga',
+    to_location: 'Crown Point',
     distance_km: 77,
     elevation_m: 692,
     route_url: 'https://www.strava.com/routes/3509747882131398512',
     strava_activity_id: null,
-    accommodation_name: 'TBD',
-    accommodation_url: 'https://circlecourtmotel.com/',
+    accommodation_name: '173 Factoryville Road',
+    accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: 'Pending review — Option 1: Circle Court Motel in Ticonderoga (~$109, shorter day, food walkable). Option 2: Crown Point Airbnb (~$150, longer day today but shorter Day 6, deep soak tub, no food nearby). Lodging thins out substantially from here — book soon.',
+    accommodation_notes: 'Crown Point NY 12928. Check-in from 4pm. No laundry on site, laundromat nearby.',
     dinner_options: [],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
     start_lat: 43.2634,
     start_lng: -73.5843,
-    end_lat: 43.8503,
-    end_lng: -73.4207,
+    end_lat: 43.9453,
+    end_lng: -73.4334,
   },
   {
     id: 6,
     date: '2026-09-09',
-    title: 'Ticonderoga to Plattsburgh',
-    from_location: 'Ticonderoga',
+    title: 'Crown Point to Plattsburgh',
+    from_location: 'Crown Point',
     to_location: 'Plattsburgh',
-    distance_km: 116,
-    elevation_m: 1414,
-    route_url: 'https://www.strava.com/routes/3509759797592059704',
+    distance_km: 99,
+    elevation_m: 1249,
+    route_url: 'https://www.strava.com/routes/3510096533741219614',
     strava_activity_id: null,
     accommodation_name: 'Airbnb — 5436 Peru St',
     accommodation_url: 'https://www.airbnb.com/rooms/579915989815721458',
@@ -162,8 +180,8 @@ export const DAYS_DATA: DayData[] = [
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
-    start_lat: 43.8503,
-    start_lng: -73.4207,
+    start_lat: 43.9453,
+    start_lng: -73.4334,
     end_lat: 44.6995,
     end_lng: -73.4529,
   },
@@ -223,8 +241,8 @@ export const POST_HIKE_DAYS = [
 ];
 
 export const TRIP_STATS = {
-  totalDistance: 705.1,
-  totalElevation: 4641,
+  totalDistance: 688.1,
+  totalElevation: 4476,
   totalDays: 8,
 };
 
