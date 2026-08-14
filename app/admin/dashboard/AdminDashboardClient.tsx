@@ -640,7 +640,7 @@ export default function AdminDashboardClient() {
                   step="any"
                   value={manualLat}
                   onChange={(e) => setManualLat(e.target.value)}
-                  placeholder="e.g. 56.2068"
+                  placeholder="e.g. 42.6526"
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
@@ -651,7 +651,7 @@ export default function AdminDashboardClient() {
                   step="any"
                   value={manualLng}
                   onChange={(e) => setManualLng(e.target.value)}
-                  placeholder="e.g. -4.6161"
+                  placeholder="e.g. -73.7562"
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
