@@ -10,54 +10,40 @@ function getDateInTZ(date: Date, tz: string): string {
   }).format(date);
 }
 
+// Trip overall starts Fri Sep 4 (train to Poughkeepsie — see PRE_RIDE_DAY).
+// Riding itself doesn't start until Day 1 on Sat Sep 5.
 export const TRIP_START_DATE = '2026-09-04';
 export const TRIP_END_DATE = '2026-09-11';
 export const TRIP_TIMEZONE = 'America/New_York';
 
+// Fri Sep 4: not a riding day. Train up from NYC, spend the day in
+// Poughkeepsie, stay in the same Airbnb the ride departs from the next
+// morning. Deliberately lightweight (no diary/photos backing) — it's a
+// travel day, not a numbered route day.
+export const PRE_RIDE_DAY = {
+  date: '2026-09-04',
+  label: 'Friday, Sep 4',
+  title: 'Travel day — train to Poughkeepsie',
+  accommodation_name: 'Airbnb — 57 Montgomery St, Poughkeepsie',
+  accommodation_notes: '3pm check-in, 11am check-out. No laundry. Same Airbnb the ride departs from Saturday morning.',
+};
+
 // Approximate waypoints (city centers) along the route. Not a road-accurate
 // polyline — swap in a GPX export from the Strava routes for a precise line.
 export const EST_ROUTE_COORDINATES: [number, number][] = [
-  [-73.9442, 40.6782], // Brooklyn
   [-73.9210, 41.7004], // Poughkeepsie
   [-73.7902, 42.2528], // Hudson
   [-73.7562, 42.6526], // Albany
   [-73.5843, 43.2634], // Fort Edward
   [-73.4334, 43.9453], // Crown Point
   [-73.4529, 44.6995], // Plattsburgh
-  [-73.3617, 45.0835], // Lacolle, QC
+  [-73.3945, 45.1319], // Napierville area, QC
   [-73.5674, 45.5019], // Montreal, QC
 ];
 
 export const DAYS_DATA: DayData[] = [
   {
     id: 1,
-    date: '2026-09-04',
-    title: 'Brooklyn to Poughkeepsie',
-    from_location: 'Brooklyn',
-    to_location: 'Poughkeepsie',
-    distance_km: 163,
-    elevation_m: 740,
-    route_url: 'https://www.strava.com/routes/3509759797565925176',
-    strava_activity_id: null,
-    accommodation_name: 'Airbnb — 57 Montgomery St',
-    accommodation_url: 'https://www.airbnb.com.au/rooms/14994000',
-    accommodation_booking_ref: null,
-    accommodation_notes: 'Private bathroom. Owner has cats. Bikes OK inside. Holiday weekend — hotels ~2x normal price.',
-    dinner_options: [
-      { name: "Elmsford Deli", notes: '~30 mi in — early lunch/snack + sports drink' },
-      { name: 'Trailside Cafe', notes: '~50 mi in — lunch' },
-      { name: "Klobacher's Market", notes: "~70 mi in — pastry/snack + sports drink. Not much between here and Poughkeepsie, stock up on water." },
-    ],
-    dinner_booked: false,
-    dinner_booking_notes: null,
-    resupply_notes: null,
-    start_lat: 40.6782,
-    start_lng: -73.9442,
-    end_lat: 41.7004,
-    end_lng: -73.9210,
-  },
-  {
-    id: 2,
     date: '2026-09-05',
     title: 'Poughkeepsie to Hudson',
     from_location: 'Poughkeepsie',
@@ -69,12 +55,13 @@ export const DAYS_DATA: DayData[] = [
     accommodation_name: 'Airbnb — 343 State St',
     accommodation_url: 'https://www.airbnb.com/rooms/22437701',
     accommodation_booking_ref: null,
-    accommodation_notes: 'Bikes OK inside the house. Refundable up to Sept 4. Close to town for dinner and a stroll.',
+    accommodation_notes: 'Bikes OK inside the house. 3pm check-in, 12pm check-out. No laundry.',
     dinner_options: [
-      { name: "Alex's", notes: 'Opens 8am — breakfast, 4 min ride from the Airbnb' },
-      { name: 'Dry Fly Coffee', notes: '~10 mi in — coffee' },
-      { name: 'Sorry, Charlie', notes: '~26 mi in — lunch' },
-      { name: "Fortune's Ice Cream", notes: '~40 mi in' },
+      { name: "Alex's", notes: '0 km — opens 8am, breakfast, 4 min ride from the Airbnb' },
+      { name: 'Dry Fly Coffee', notes: '18 km in — coffee' },
+      { name: 'Sorry, Charlie', notes: '43 km in — lunch' },
+      { name: "Fortune's Ice Cream", notes: '68 km in' },
+      { name: "Otto's Market", notes: '80 km in' },
     ],
     dinner_booked: false,
     dinner_booking_notes: null,
@@ -85,7 +72,7 @@ export const DAYS_DATA: DayData[] = [
     end_lng: -73.7902,
   },
   {
-    id: 3,
+    id: 2,
     date: '2026-09-06',
     title: 'Hudson to Albany',
     from_location: 'Hudson',
@@ -94,15 +81,15 @@ export const DAYS_DATA: DayData[] = [
     elevation_m: 379,
     route_url: 'https://www.strava.com/routes/3509774140284331634',
     strava_activity_id: null,
-    accommodation_name: 'Booked — name TBD',
+    accommodation_name: '174 Jay St, Albany',
     accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: '$115.52 charged Aug 28, free cancellation until 3pm Sep 5. Property name not yet noted in the planning doc.',
+    accommodation_notes: 'No laundry, laundromat nearby. Free cancellation before 3pm Sep 5. Maybe a quick Uber to Dinosaur BBQ in Troy tonight!',
     dinner_options: [
       { name: "Goodboybob or Kitty's Market", notes: 'Both open 8am — bacon egg and cheese' },
-      { name: 'Saisonnier', notes: 'Opens 11:30am, ~14 mi in — cheeky morning beer, short day' },
-      { name: 'Smash and Dash Burgers', notes: '~16 mi in — lunch' },
-      { name: "Smile's Soft Serve", notes: '~26 mi in' },
+      { name: 'Saisonnier', notes: '21 km in, opens 11:30am — cheeky morning beer, short day' },
+      { name: 'Smash and Dash Burgers', notes: '21.5 km in — lunch' },
+      { name: "Smile's Soft Serve", notes: '37 km in' },
     ],
     dinner_booked: false,
     dinner_booking_notes: null,
@@ -113,7 +100,7 @@ export const DAYS_DATA: DayData[] = [
     end_lng: -73.7562,
   },
   {
-    id: 4,
+    id: 3,
     date: '2026-09-07',
     title: 'Albany to Fort Edward',
     from_location: 'Albany',
@@ -125,11 +112,12 @@ export const DAYS_DATA: DayData[] = [
     accommodation_name: 'Airbnb — 110 Broadway',
     accommodation_url: 'https://www.airbnb.com.au/rooms/1563889805245117698',
     accommodation_booking_ref: null,
-    accommodation_notes: 'Bikes OK inside the house.',
+    accommodation_notes: 'Bikes OK inside. 3pm check-in, 11am check-out. No laundry, laundromat nearby. Final $206.81 charged 8/23.',
     dinner_options: [
-      { name: 'Breakfast', notes: 'Depends on Albany accommodation' },
-      { name: 'Damn Good Jerky', notes: '~27 mi in' },
-      { name: 'Amigos Cantina', notes: '~39 mi in — lunch' },
+      { name: 'Iron Gate Cafe', notes: '4 min ride from accom, opens 8:30am — breakfast' },
+      { name: 'Undeniable Nutrition', notes: '22 mi in — tea, smoothie' },
+      { name: 'Damn Good Jerky', notes: '27 mi in' },
+      { name: 'Old Saratoga Eatery', notes: '38.5 mi in — lunch. Kickstart Coffee on the same block for a road coffee.' },
     ],
     dinner_booked: false,
     dinner_booking_notes: null,
@@ -140,20 +128,27 @@ export const DAYS_DATA: DayData[] = [
     end_lng: -73.5843,
   },
   {
-    id: 5,
+    id: 4,
     date: '2026-09-08',
     title: 'Fort Edward to Crown Point',
     from_location: 'Fort Edward',
     to_location: 'Crown Point',
-    distance_km: 77,
-    elevation_m: 692,
+    distance_km: 99.8,
+    elevation_m: 1046,
     route_url: 'https://www.strava.com/routes/3509747882131398512',
     strava_activity_id: null,
     accommodation_name: '173 Factoryville Road',
     accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: 'Crown Point NY 12928. Check-in from 4pm. No laundry on site, laundromat nearby.',
-    dinner_options: [],
+    accommodation_notes: 'Crown Point NY 12928. Check-in from 4pm, check-out 11am. No laundry, laundromat nearby.',
+    dinner_options: [
+      { name: "Mamma's Cafe", notes: '1 min ride from the Airbnb — breakfast' },
+      { name: 'Dunkin (Fort Anne)', notes: '13 mi in — coffee/munchkins' },
+      { name: "Joe's Pizza, Bigfoot Wine and Liquor", notes: '26 mi in — lunch' },
+      { name: 'Walmart', notes: '~26.5 mi in — groceries for dinner + next morning' },
+      { name: "Frenchy's", notes: '2 mi from the Airbnb — ice cream' },
+      { name: '5 Eleven Deli Mart', notes: 'Just after Frenchy\'s — snacks/liquids. Message host Adam when you get here.' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
@@ -163,7 +158,7 @@ export const DAYS_DATA: DayData[] = [
     end_lng: -73.4334,
   },
   {
-    id: 6,
+    id: 5,
     date: '2026-09-09',
     title: 'Crown Point to Plattsburgh',
     from_location: 'Crown Point',
@@ -175,8 +170,14 @@ export const DAYS_DATA: DayData[] = [
     accommodation_name: 'Airbnb — 5436 Peru St',
     accommodation_url: 'https://www.airbnb.com/rooms/579915989815721458',
     accommodation_booking_ref: null,
-    accommodation_notes: 'Bikes can be stored in the storage shed overnight. Biggest elevation day of the trip.',
-    dinner_options: [],
+    accommodation_notes: 'Bikes stored in the shed overnight. Check-in 3pm, check-out 11am. Washer/dryer in unit. Biggest elevation day of the trip.',
+    dinner_options: [
+      { name: "Stewart's Shops", notes: '10 km in — gas station, drinks/coffee' },
+      { name: 'Jambs on Main', notes: '27 km in — coffee. K&D Deli & Grocery next door for early lunch.' },
+      { name: 'The Old Dock', notes: '48 km in — lunch or snack' },
+      { name: 'Village Roast Coffee', notes: '76 km in, closes 3pm. Stewart\'s Shops also here if closed.' },
+      { name: 'The Scoop', notes: '99 km in — ice cream, almost there' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
@@ -186,48 +187,56 @@ export const DAYS_DATA: DayData[] = [
     end_lng: -73.4529,
   },
   {
-    id: 7,
+    id: 6,
     date: '2026-09-10',
-    title: 'Plattsburgh to Lacolle, QC',
+    title: 'Plattsburgh to Napierville, QC',
     from_location: 'Plattsburgh',
-    to_location: 'Lacolle',
-    distance_km: 51.7,
-    elevation_m: 137,
-    route_url: 'https://www.strava.com/routes/3509760683135987490',
+    to_location: 'Napierville',
+    distance_km: 66.8,
+    elevation_m: 232,
+    route_url: 'https://www.strava.com/routes/3528107852197359460',
     strava_activity_id: null,
-    accommodation_name: 'TBD',
-    accommodation_url: 'https://maps.app.goo.gl/K8JJPMLCPH3TbzFw5',
+    accommodation_name: 'Motel — 3 rang Saint-André',
+    accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: 'Not booked yet — suggested: Motel Lacolle.',
-    dinner_options: [],
+    accommodation_notes: 'Saint-Cyprien-de-Napierville, QC J0J 1L0. Collect key at the restaurant when checking in. Bikes OK in room. Not yet paid.',
+    dinner_options: [
+      { name: "Banjo's Bagels or Campus Corner", notes: '2-3 min ride from the Airbnb — breakfast' },
+      { name: 'Frencheez', notes: '39 km in — lunch' },
+      { name: 'Depanneur St Bernard', notes: '56 km in — gas station ice cream' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: 'Crossing the US/Canada border today — bring passports.',
     start_lat: 44.6995,
     start_lng: -73.4529,
-    end_lat: 45.0835,
-    end_lng: -73.3617,
+    end_lat: 45.1319,
+    end_lng: -73.3945,
   },
   {
-    id: 8,
+    id: 7,
     date: '2026-09-11',
-    title: 'Lacolle to Montreal',
-    from_location: 'Lacolle',
+    title: 'Napierville to Montreal',
+    from_location: 'Napierville',
     to_location: 'Montreal',
-    distance_km: 74,
-    elevation_m: 231,
-    route_url: 'https://www.strava.com/routes/3509801905862093652',
+    distance_km: 53,
+    elevation_m: 95,
+    route_url: 'https://www.strava.com/routes/3528126665997450560',
     strava_activity_id: null,
     accommodation_name: 'TBD',
-    accommodation_url: 'https://hotelbonaventure.com/en/',
+    accommodation_url: null,
     accommodation_booking_ref: null,
-    accommodation_notes: 'Not booked yet — could splurge on the Hotel Bonaventure (heated rooftop pool, 20 min walk to Bota Bota) or an Airbnb.',
-    dinner_options: [],
+    accommodation_notes: 'Not booked yet.',
+    dinner_options: [
+      { name: "Resto-bar Douglas or l'oasis", notes: 'Same spot as last night, or 1 min over' },
+      { name: 'Le Duo Choc', notes: '25 km in — pastry' },
+      { name: "Cafe le'apostrophe", notes: '30 km in — coffee and pastry' },
+    ],
     dinner_booked: false,
     dinner_booking_notes: null,
     resupply_notes: null,
-    start_lat: 45.0835,
-    start_lng: -73.3617,
+    start_lat: 45.1319,
+    start_lng: -73.3945,
     end_lat: 45.5019,
     end_lng: -73.5674,
   },
@@ -236,14 +245,14 @@ export const DAYS_DATA: DayData[] = [
 // Post-ride day IDs: 9 = Sat Sep 12, 10 = Sun Sep 13, 11 = Mon Sep 14
 export const POST_HIKE_DAYS = [
   { id: 9, date: '2026-09-12', label: 'Saturday, Sep 12', title: 'Montreal' },
-  { id: 10, date: '2026-09-13', label: 'Sunday, Sep 13', title: 'Montreal' },
-  { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Fly home to NYC' },
+  { id: 10, date: '2026-09-13', label: 'Sunday, Sep 13', title: 'Montreal — rental car pickup' },
+  { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Drive home to Brooklyn' },
 ];
 
 export const TRIP_STATS = {
-  totalDistance: 688.1,
-  totalElevation: 4476,
-  totalDays: 8,
+  totalDistance: 542,
+  totalElevation: 4049,
+  totalDays: 7,
 };
 
 export function getDayStatus(dayDate: string, currentDate: Date, tz: string = TRIP_TIMEZONE): 'upcoming' | 'active' | 'completed' {

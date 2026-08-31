@@ -41,7 +41,7 @@ export default function DayCard({ day, status, index }: DayCardProps) {
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
 
-  const progressPercent = ((day.id - 1) / 7) * 100;
+  const progressPercent = ((day.id - 1) / 6) * 100;
 
   return (
     <motion.div
@@ -98,7 +98,7 @@ export default function DayCard({ day, status, index }: DayCardProps) {
               <TrendingUp className="w-3 h-3" />
               <span>{day.elevation_m}m</span>
             </div>
-            {day.id === 6 && (
+            {day.id === 5 && (
               <span className="text-xs text-red-400 font-medium">Longest day</span>
             )}
           </div>

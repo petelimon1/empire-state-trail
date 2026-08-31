@@ -3,13 +3,13 @@ import { Mountain, MapPin, Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import DayCard from '@/components/DayCard';
 import RouteMapDynamic from '@/components/RouteMapDynamic';
-import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS } from '@/lib/tripData';
+import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS, PRE_RIDE_DAY } from '@/lib/tripData';
 import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 
 export const metadata: Metadata = {
   title: 'Empire State Trail 2026 | Pete & Lena\'s Ride',
-  description: 'Follow Pete & Lena\'s 705km bike ride from Brooklyn to Montreal along the Empire State Trail, Sept 4–11, 2026.',
+  description: 'Follow Pete & Lena\'s 542km bike ride from Poughkeepsie to Montreal along the Empire State Trail, Sept 5–11, 2026 (after training up from Brooklyn on Sept 4).',
 };
 
 export const revalidate = 60;
@@ -45,12 +45,13 @@ async function getPostHikeDiaryEntries(): Promise<Record<number, string>> {
   }
 }
 
-function getTripInfo(): { phase: 'before' | 'during' | 'after'; activeDayId: number | null; daysUntil: number; currentDate: string } {
+function getTripInfo(): { phase: 'before' | 'during' | 'after'; activeDayId: number | null; isPreRideDay: boolean; daysUntil: number; currentDate: string } {
   const now = new Date();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: TRIP_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
 
   let phase: 'before' | 'during' | 'after';
   let activeDayId: number | null = null;
+  let isPreRideDay = false;
 
   if (today < TRIP_START_DATE) {
     phase = 'before';
@@ -60,13 +61,14 @@ function getTripInfo(): { phase: 'before' | 'during' | 'after'; activeDayId: num
     phase = 'during';
     const activeDay = DAYS_DATA.find((d) => d.date === today);
     activeDayId = activeDay?.id ?? null;
+    isPreRideDay = today === PRE_RIDE_DAY.date;
   }
 
   const tripStart = new Date(TRIP_START_DATE + 'T00:00:00Z');
   const todayUTC = new Date(today + 'T00:00:00Z');
   const daysUntil = Math.round((tripStart.getTime() - todayUTC.getTime()) / (1000 * 60 * 60 * 24));
 
-  return { phase, activeDayId, daysUntil, currentDate: today };
+  return { phase, activeDayId, isPreRideDay, daysUntil, currentDate: today };
 }
 
 function getDayStatuses(currentDate: string): Record<number, DayStatus> {
@@ -117,7 +119,7 @@ export default async function HomePage() {
 
           {/* Status Banner */}
           <div className="mt-10">
-            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={tripInfo.activeDayId} garminUrl={tripStatus?.garmin_livetrack_url} completedDays={completedDays} />
+            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={tripInfo.activeDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={tripStatus?.garmin_livetrack_url} completedDays={completedDays} />
           </div>
 
           {/* Stats */}
@@ -205,12 +207,26 @@ export default async function HomePage() {
                   />
                 </div>
                 <div className="flex justify-between mt-2 text-xs text-slate-600">
-                  <span>Brooklyn</span>
+                  <span>Poughkeepsie</span>
                   <span>Montreal</span>
                 </div>
               </div>
             </section>
           )}
+
+          {/* Pre-ride travel day */}
+          <section>
+            <div className="glass-card rounded-2xl p-6 max-w-2xl mx-auto text-left">
+              <h3 className="font-display text-lg font-semibold text-slate-300 mb-3 text-center">Before the Ride</h3>
+              <div className="text-sm">
+                <div className="text-slate-400 font-medium mb-1">{PRE_RIDE_DAY.label} — {PRE_RIDE_DAY.title}</div>
+                <div className="space-y-0.5 pl-3 border-l border-slate-700/60">
+                  <div className="text-slate-400">{PRE_RIDE_DAY.accommodation_name}</div>
+                  <div className="text-slate-500 text-xs">{PRE_RIDE_DAY.accommodation_notes}</div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Day Cards */}
           <section>
@@ -238,12 +254,12 @@ export default async function HomePage() {
                 />
                 <PostHikeDay
                   label="Sun Sep 13"
-                  fallback="Montreal"
+                  fallback="Montreal — rental car pickup"
                   content={postHikeDiary[10]}
                 />
                 <PostHikeDay
                   label="Mon Sep 14"
-                  fallback="Flight TBD — Montreal (YUL) → NYC"
+                  fallback="Drive home — rental car, Montreal to Brooklyn"
                   content={postHikeDiary[11]}
                 />
               </div>
@@ -266,10 +282,11 @@ export default async function HomePage() {
 }
 
 // Status Banner Component
-function StatusBanner({ phase, daysUntil, activeDayId, garminUrl, completedDays }: {
+function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, completedDays }: {
   phase: 'before' | 'during' | 'after';
   daysUntil: number;
   activeDayId: number | null;
+  isPreRideDay: boolean;
   garminUrl?: string | null;
   completedDays: number;
 }) {
@@ -281,7 +298,20 @@ function StatusBanner({ phase, daysUntil, activeDayId, garminUrl, completedDays 
           <div className="text-slate-200 font-semibold">
             Trip starts in {daysUntil} {daysUntil === 1 ? 'day' : 'days'}
           </div>
-          <div className="text-slate-500 text-xs">Sep 4, 2026 · Brooklyn</div>
+          <div className="text-slate-500 text-xs">Sep 4, 2026 · Train to Poughkeepsie</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fri Sep 4 — travel day, not a riding day
+  if (phase === 'during' && isPreRideDay && !activeDayId) {
+    return (
+      <div className="inline-flex items-center gap-3 glass rounded-2xl px-6 py-3 border border-slate-700/50">
+        <div className="text-2xl">🚆</div>
+        <div className="text-left">
+          <div className="text-slate-200 font-semibold">Travel day</div>
+          <div className="text-slate-500 text-xs">Training up to Poughkeepsie — riding starts tomorrow</div>
         </div>
       </div>
     );

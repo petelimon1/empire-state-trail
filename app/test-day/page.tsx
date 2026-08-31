@@ -163,7 +163,7 @@ export default async function TestDayPage() {
               <div className="space-y-2 text-xs text-slate-500 leading-relaxed">
                 <p><span className="text-slate-300">LiveTrack:</span> Start a Garmin activity → Garmin emails you → Zapier grabs the URL → appears here within ~2 min</p>
                 <p><span className="text-slate-300">Strava:</span> Finish activity → Garmin syncs to Strava → webhook fires → stats appear here within ~5 min</p>
-                <p><span className="text-slate-300">Real trip:</span> Activities recorded on Sep 4–11 will auto-link to Day 1–8 instead of this test page</p>
+                <p><span className="text-slate-300">Real trip:</span> Activities recorded on Sep 5–11 will auto-link to Day 1–7 instead of this test page</p>
               </div>
             </div>
 

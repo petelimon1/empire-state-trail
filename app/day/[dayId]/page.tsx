@@ -132,7 +132,7 @@ export const revalidate = 60;
 
 export default async function DayPage({ params }: PageProps) {
   const dayId = parseInt(params.dayId);
-  if (isNaN(dayId) || dayId < 1 || dayId > 8) notFound();
+  if (isNaN(dayId) || dayId < 1 || dayId > 7) notFound();
 
   const day = DAYS_DATA.find((d) => d.id === dayId);
   if (!day) notFound();
@@ -220,7 +220,7 @@ export default async function DayPage({ params }: PageProps) {
                   {stravaStats
                     ? ` · ${formatDistance(stravaStats.distance)} · ${formatDuration(stravaStats.moving_time)} · ${stravaStats.total_elevation_gain.toFixed(0)}m`
                     : ` · ${day.distance_km} km · ${day.elevation_m}m elev`}
-                  {day.id === 6 ? ' · Longest day' : day.id === 8 ? ' · Final day 🏁' : ''}
+                  {day.id === 5 ? ' · Longest day' : day.id === 7 ? ' · Final day 🏁' : ''}
                 </span>
               </div>
 

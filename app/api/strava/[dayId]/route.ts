@@ -9,8 +9,8 @@ export async function GET(
 ) {
   const dayId = parseInt(params.dayId);
 
-  // Allow 1–8 (real days) and 99 (test slot)
-  if (isNaN(dayId) || (dayId < 1 || dayId > 8) && dayId !== 99) {
+  // Allow 1–7 (real days) and 99 (test slot)
+  if (isNaN(dayId) || (dayId < 1 || dayId > 7) && dayId !== 99) {
     return NextResponse.json({ error: 'Invalid day ID' }, { status: 400 });
   }
 

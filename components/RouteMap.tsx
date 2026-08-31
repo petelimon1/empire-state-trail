@@ -15,37 +15,34 @@ interface RouteMapProps {
 // Approximate waypoints (city centers), [lng, lat]. Not a road-accurate
 // polyline — swap in a GPX export from the Strava routes for a precise line.
 const ALL_COORDS: [number, number][] = [
-  [-73.9442, 40.6782],  // 0: Brooklyn (start)
-  [-73.9210, 41.7004],  // 1: Poughkeepsie
-  [-73.7902, 42.2528],  // 2: Hudson
-  [-73.7562, 42.6526],  // 3: Albany
-  [-73.5843, 43.2634],  // 4: Fort Edward
-  [-73.4334, 43.9453],  // 5: Crown Point
-  [-73.4529, 44.6995],  // 6: Plattsburgh
-  [-73.3617, 45.0835],  // 7: Lacolle, QC
-  [-73.5674, 45.5019],  // 8: Montreal (finish)
+  [-73.9210, 41.7004],  // 0: Poughkeepsie (start)
+  [-73.7902, 42.2528],  // 1: Hudson
+  [-73.7562, 42.6526],  // 2: Albany
+  [-73.5843, 43.2634],  // 3: Fort Edward
+  [-73.4334, 43.9453],  // 4: Crown Point
+  [-73.4529, 44.6995],  // 5: Plattsburgh
+  [-73.3945, 45.1319],  // 6: Napierville area, QC
+  [-73.5674, 45.5019],  // 7: Montreal (finish)
 ];
 
 const DAY_SEGMENTS = [
-  { day: 1, from: 'Brooklyn',     to: 'Poughkeepsie',  color: '#10b981', coords: ALL_COORDS.slice(0, 2) },
-  { day: 2, from: 'Poughkeepsie', to: 'Hudson',        color: '#06b6d4', coords: ALL_COORDS.slice(1, 3) },
-  { day: 3, from: 'Hudson',       to: 'Albany',        color: '#60a5fa', coords: ALL_COORDS.slice(2, 4) },
-  { day: 4, from: 'Albany',       to: 'Fort Edward',   color: '#a78bfa', coords: ALL_COORDS.slice(3, 5) },
-  { day: 5, from: 'Fort Edward',  to: 'Crown Point',   color: '#e879f9', coords: ALL_COORDS.slice(4, 6) },
-  { day: 6, from: 'Crown Point',  to: 'Plattsburgh',   color: '#fb923c', coords: ALL_COORDS.slice(5, 7) },
-  { day: 7, from: 'Plattsburgh',  to: 'Lacolle',       color: '#f472b6', coords: ALL_COORDS.slice(6, 8) },
-  { day: 8, from: 'Lacolle',      to: 'Montreal',      color: '#f87171', coords: ALL_COORDS.slice(7, 9) },
+  { day: 1, from: 'Poughkeepsie', to: 'Hudson',        color: '#10b981', coords: ALL_COORDS.slice(0, 2) },
+  { day: 2, from: 'Hudson',       to: 'Albany',        color: '#06b6d4', coords: ALL_COORDS.slice(1, 3) },
+  { day: 3, from: 'Albany',       to: 'Fort Edward',   color: '#60a5fa', coords: ALL_COORDS.slice(2, 4) },
+  { day: 4, from: 'Fort Edward',  to: 'Crown Point',   color: '#a78bfa', coords: ALL_COORDS.slice(3, 5) },
+  { day: 5, from: 'Crown Point',  to: 'Plattsburgh',   color: '#e879f9', coords: ALL_COORDS.slice(4, 6) },
+  { day: 6, from: 'Plattsburgh',  to: 'Napierville',   color: '#fb923c', coords: ALL_COORDS.slice(5, 7) },
+  { day: 7, from: 'Napierville',  to: 'Montreal',      color: '#f472b6', coords: ALL_COORDS.slice(6, 8) },
 ];
 
-// Overnight stop: end coord of each day 1-7 (day 8 ends at the finish marker)
+// Overnight stop: end coord of each day 1-6 (day 7 ends at the finish marker)
 const OVERNIGHT_STOPS: { day: number; coord: [number, number]; color: string; from: string; to: string }[] = [
-  { day: 1, coord: [-73.9210, 41.7004], color: '#10b981', from: 'Brooklyn',     to: 'Poughkeepsie' },
-  { day: 2, coord: [-73.7902, 42.2528], color: '#06b6d4', from: 'Poughkeepsie', to: 'Hudson'       },
-  { day: 3, coord: [-73.7562, 42.6526], color: '#60a5fa', from: 'Hudson',       to: 'Albany'       },
-  { day: 4, coord: [-73.5843, 43.2634], color: '#a78bfa', from: 'Albany',       to: 'Fort Edward'  },
-  { day: 5, coord: [-73.4334, 43.9453], color: '#e879f9', from: 'Fort Edward',  to: 'Crown Point'  },
-  { day: 6, coord: [-73.4529, 44.6995], color: '#fb923c', from: 'Crown Point',  to: 'Plattsburgh'  },
-  { day: 7, coord: [-73.3617, 45.0835], color: '#f472b6', from: 'Plattsburgh',  to: 'Lacolle'      },
+  { day: 1, coord: [-73.7902, 42.2528], color: '#10b981', from: 'Poughkeepsie', to: 'Hudson'       },
+  { day: 2, coord: [-73.7562, 42.6526], color: '#06b6d4', from: 'Hudson',       to: 'Albany'       },
+  { day: 3, coord: [-73.5843, 43.2634], color: '#60a5fa', from: 'Albany',       to: 'Fort Edward'  },
+  { day: 4, coord: [-73.4334, 43.9453], color: '#a78bfa', from: 'Fort Edward',  to: 'Crown Point'  },
+  { day: 5, coord: [-73.4529, 44.6995], color: '#e879f9', from: 'Crown Point',  to: 'Plattsburgh'  },
+  { day: 6, coord: [-73.3945, 45.1319], color: '#fb923c', from: 'Plattsburgh',  to: 'Napierville'  },
 ];
 
 export default function RouteMap({
@@ -222,11 +219,11 @@ export default function RouteMap({
         { padding: { top: 60, bottom: 60, left: 60, right: 60 }, maxZoom: 9 }
       );
 
-      // --- Start marker (Brooklyn) ---
+      // --- Start marker (Poughkeepsie) ---
       const startEl = document.createElement('div');
       startEl.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:#10b981;border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4)">S</div>`;
       new mapboxgl.Marker({ element: startEl })
-        .setLngLat([-73.9442, 40.6782])
+        .setLngLat([-73.9210, 41.7004])
         .addTo(m);
 
       // --- Finish marker (Montreal) ---

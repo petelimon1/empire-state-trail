@@ -130,7 +130,7 @@ function parseDocUpdates(text: string): Array<{ dayId: number; fields: DayFields
     const dayNumStr = parts[i].trim();
     const dayNum = parseInt(dayNumStr, 10);
     i++;
-    if (isNaN(dayNum) || dayNum < 1 || dayNum > 8) {
+    if (isNaN(dayNum) || dayNum < 1 || dayNum > 7) {
       i++; // skip the section content too
       continue;
     }

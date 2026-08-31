@@ -7,7 +7,7 @@ import { Bike, Menu, X, ChevronDown } from 'lucide-react';
 import TimezoneDisplay from './TimezoneDisplay';
 import { cn } from '@/lib/utils';
 
-const DAYS = [1, 2, 3, 4, 5, 6, 7, 8];
+const DAYS = [1, 2, 3, 4, 5, 6, 7];
 
 export default function Navbar() {
   const pathname = usePathname();
