@@ -103,10 +103,10 @@ export default async function HomePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center overflow-hidden">
-        {/* Hero background */}
+        {/* Hero background — paved trail through fall foliage, Hudson Valley area */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1700159411878-bb8bb3301bed?auto=format&fit=crop&w=1920&q=80')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1695596255645-e609fe4c090c?auto=format&fit=crop&w=1920&q=80')" }}
         />
         {/* Minimal dark overlay — heavier at top for nav, lighter in middle, dark at bottom */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80" />
