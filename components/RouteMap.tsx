@@ -74,7 +74,10 @@ export default function RouteMap({
 
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-  // Poll /api/location every 60 seconds for live position
+  // Poll /api/location every 4 minutes for live position. Was every 60s,
+  // which meant a single open tab fired a serverless function invocation
+  // every minute indefinitely -- adds up fast on a credit-metered plan for
+  // a "live" dot that only ever changes a few times a day anyway.
   useEffect(() => {
     async function poll() {
       try {
@@ -88,7 +91,7 @@ export default function RouteMap({
     }
 
     poll(); // immediate first poll
-    const id = setInterval(poll, 60_000);
+    const id = setInterval(poll, 4 * 60_000);
     return () => clearInterval(id);
   }, []);
 
@@ -137,7 +140,7 @@ export default function RouteMap({
             <div style="font-weight:700;color:#e2e8f0;font-size:13px;border-left:3px solid #3b82f6;padding-left:8px;margin-bottom:3px">
               Pete &amp; Lena's location
             </div>
-            <div style="color:#94a3b8;font-size:11px;padding-left:11px">Live · updates every 60s</div>
+            <div style="color:#94a3b8;font-size:11px;padding-left:11px">Live · updates every few minutes</div>
           </div>
         `);
 
