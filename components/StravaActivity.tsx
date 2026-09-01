@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Activity, Clock, TrendingUp, Zap, Heart, ExternalLink } from 'lucide-react';
 import { StravaActivity as StravaActivityType } from '@/types';
-import { formatDuration, formatPace, formatDistance, getStravaActivityUrl } from '@/lib/strava';
+import { formatDuration, getStravaActivityUrl } from '@/lib/strava';
+import { useUnits } from './UnitsProvider';
+import { formatDistanceMeters, formatElevationM, formatPaceFromMps } from '@/lib/units';
 
 interface StravaActivityProps {
   dayId: number;
@@ -20,6 +22,7 @@ export default function StravaActivity({
   garminLivetrackUrl,
   routeUrl,
 }: StravaActivityProps) {
+  const { unit } = useUnits();
   const [activity, setActivity] = useState<StravaActivityType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +55,10 @@ export default function StravaActivity({
 
   // Completed with Strava activity — show this first, regardless of isToday
   if (activity) {
-    const pace = formatPace(activity.average_speed);
+    const pace = formatPaceFromMps(activity.average_speed, unit);
     const movingTime = formatDuration(activity.moving_time);
-    const distance = formatDistance(activity.distance);
-    const elevation = Math.round(activity.total_elevation_gain) + 'm';
+    const distance = formatDistanceMeters(activity.distance, unit);
+    const elevation = formatElevationM(activity.total_elevation_gain, unit);
 
     return (
       <div className="glass-card rounded-xl p-5">

@@ -6,6 +6,7 @@ import RouteMapDynamic from '@/components/RouteMapDynamic';
 import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS, PRE_RIDE_DAY } from '@/lib/tripData';
 import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
+import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 
 export const metadata: Metadata = {
   title: 'Empire State Trail 2026 | Pete & Lena\'s Ride',
@@ -127,41 +128,41 @@ export default async function HomePage() {
             {/* Mobile: 2x2 grid */}
             <div className="grid grid-cols-2 gap-4 sm:hidden">
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg">{TRIP_STATS.totalDistance} km</div>
+                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={TRIP_STATS.totalDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Distance</div>
               </div>
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg">{TRIP_STATS.totalElevation.toLocaleString()} m</div>
+                <div className="font-display font-semibold text-white text-lg"><ElevationValue m={TRIP_STATS.totalElevation} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Elevation</div>
               </div>
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg">{completedDistance.toFixed(1)} km</div>
+                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={completedDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Completed</div>
               </div>
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg">{remainingDistance.toFixed(1)} km</div>
+                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={remainingDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Remaining</div>
               </div>
             </div>
             {/* Desktop: row with dividers */}
             <div className="hidden sm:flex items-center justify-center gap-10">
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl">{TRIP_STATS.totalDistance} km</div>
+                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={TRIP_STATS.totalDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Distance</div>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl">{TRIP_STATS.totalElevation.toLocaleString()} m</div>
+                <div className="font-display font-semibold text-white text-xl"><ElevationValue m={TRIP_STATS.totalElevation} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Elevation</div>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl">{completedDistance.toFixed(1)} km</div>
+                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={completedDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Completed</div>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl">{remainingDistance.toFixed(1)} km</div>
+                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={remainingDistance} /></div>
                 <div className="text-xs tracking-wider uppercase mt-0.5">Remaining</div>
               </div>
             </div>
@@ -273,7 +274,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
           <div className="font-display italic text-slate-500">Empire State Trail 2026 · Pete &amp; Lena</div>
           <div>
-            Built with Next.js · All distances in km
+            Built with Next.js
           </div>
         </div>
       </footer>
@@ -323,7 +324,7 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
         <div className="text-2xl">🏆</div>
         <div className="text-left">
           <div className="text-emerald-400 font-semibold">Trip Completed!</div>
-          <div className="text-slate-500 text-xs">All {TRIP_STATS.totalDistance}km ridden · Montreal reached</div>
+          <div className="text-slate-500 text-xs">All <DistanceValue km={TRIP_STATS.totalDistance} /> ridden · Montreal reached</div>
         </div>
       </div>
     );

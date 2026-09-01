@@ -17,10 +17,12 @@ import PageTransition from '@/components/PageTransition';
 import { DAYS_DATA, TRIP_TIMEZONE } from '@/lib/tripData';
 import { DayData, DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
-import { getStravaActivity, formatDuration, formatDistance } from '@/lib/strava';
+import { getStravaActivity } from '@/lib/strava';
 import { cn } from '@/lib/utils';
 import TimezoneDisplay from '@/components/TimezoneDisplay';
 import { getAdminSession } from '@/lib/auth';
+import DayHeaderStats from '@/components/DayHeaderStats';
+import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 
 interface PageProps {
   params: { dayId: string };
@@ -219,9 +221,7 @@ export default async function DayPage({ params }: PageProps) {
                   {new Date(day.date + 'T12:00:00Z').toLocaleDateString('en-GB', {
                     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
                   })}
-                  {stravaStats
-                    ? ` · ${formatDistance(stravaStats.distance)} · ${formatDuration(stravaStats.moving_time)} · ${stravaStats.total_elevation_gain.toFixed(0)}m`
-                    : ` · ${day.distance_km} km · ${day.elevation_m}m elev`}
+                  <DayHeaderStats distanceKm={day.distance_km} elevationM={day.elevation_m} stravaStats={stravaStats} />
                   {day.id === 5 ? ' · Longest day' : day.id === 7 ? ' · Final day 🏁' : ''}
                 </span>
               </div>
@@ -319,11 +319,11 @@ export default async function DayPage({ params }: PageProps) {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Distance</span>
-                      <span className="text-slate-200 font-medium">{day.distance_km} km</span>
+                      <span className="text-slate-200 font-medium"><DistanceValue km={day.distance_km} /></span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Elevation</span>
-                      <span className="text-slate-200 font-medium">{day.elevation_m} m</span>
+                      <span className="text-slate-200 font-medium"><ElevationValue m={day.elevation_m} /></span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">From</span>
@@ -465,7 +465,7 @@ export default async function DayPage({ params }: PageProps) {
                         {d.id}
                       </div>
                       <span className="truncate">{d.to_location}</span>
-                      <span className="ml-auto text-slate-600">{d.distance_km}km</span>
+                      <span className="ml-auto text-slate-600"><DistanceValue km={d.distance_km} /></span>
                     </Link>
                   );
                 })}

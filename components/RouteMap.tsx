@@ -5,6 +5,19 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ROUTE_GEOMETRY } from '@/lib/routeGeometry';
 import { DAYS_DATA } from '@/lib/tripData';
+import { UnitSystem, formatDistanceKm, formatElevationM } from '@/lib/units';
+
+// The popup is built as a plain HTML string for Mapbox (not React), so it
+// can't use the UnitsProvider context — read the same localStorage key
+// directly instead. Cheap enough to re-read on every hover.
+function currentUnit(): UnitSystem {
+  try {
+    const stored = localStorage.getItem('est-units');
+    return stored === 'imperial' ? 'imperial' : 'metric';
+  } catch {
+    return 'metric';
+  }
+}
 
 interface RouteMapProps {
   height?: string;
@@ -40,17 +53,6 @@ const DAY_SEGMENTS = DAYS_DATA.map((day) => ({
   elevationM: day.elevation_m,
   routeUrl: day.route_url,
 }));
-
-// Overnight stop: the actual last point of each day's road route (day 7 ends
-// at the finish marker instead). Colors match DAY_SEGMENTS above.
-const OVERNIGHT_STOPS: { day: number; coord: [number, number]; color: string; from: string; to: string }[] =
-  DAY_SEGMENTS.filter((s) => s.day < 7).map((s) => ({
-    day: s.day,
-    coord: s.coords[s.coords.length - 1],
-    color: s.color,
-    from: s.from,
-    to: s.to,
-  }));
 
 const START_COORD = DAY_SEGMENTS[0].coords[0];
 const FINISH_COORD = DAY_SEGMENTS[DAY_SEGMENTS.length - 1].coords[DAY_SEGMENTS[DAY_SEGMENTS.length - 1].coords.length - 1];
@@ -245,6 +247,7 @@ export default function RouteMap({
         });
 
         m.on('mousemove', layerId, (e) => {
+          const unit = currentUnit();
           hoverPopup.setLngLat(e.lngLat).setHTML(`
             <div style="font-family:system-ui,sans-serif;padding:2px 0">
               <div style="font-weight:700;color:#e2e8f0;font-size:13px;border-left:3px solid ${seg.color};padding-left:8px;margin-bottom:6px">
@@ -253,11 +256,11 @@ export default function RouteMap({
               <div style="display:flex;gap:14px;padding-left:11px;margin-bottom:6px">
                 <div>
                   <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.03em">Distance</div>
-                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.distanceKm} km</div>
+                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${formatDistanceKm(seg.distanceKm, unit)}</div>
                 </div>
                 <div>
                   <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.03em">Elevation</div>
-                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.elevationM} m</div>
+                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${formatElevationM(seg.elevationM, unit)}</div>
                 </div>
               </div>
               <div style="padding-left:11px;color:#475569;font-size:10px">Click for day details →</div>
@@ -302,67 +305,11 @@ export default function RouteMap({
         .setLngLat(FINISH_COORD)
         .addTo(m);
 
-      // --- Overnight stop markers (days 1-6) ---
-      OVERNIGHT_STOPS.forEach((stop) => {
-        const el = document.createElement('div');
-        el.innerHTML = `<div style="width:24px;height:24px;border-radius:50%;background:${stop.color};border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4);cursor:pointer">${stop.day}</div>`;
-
-        const popup = new mapboxgl.Popup({
-          offset: 16,
-          closeButton: false,
-          maxWidth: '240px',
-        }).setHTML(`
-          <div style="font-family:system-ui,sans-serif;padding:2px 0">
-            <div style="font-weight:700;color:#e2e8f0;font-size:13px;border-left:3px solid ${stop.color};padding-left:8px;margin-bottom:4px">
-              Day ${stop.day}
-            </div>
-            <div style="color:#94a3b8;font-size:12px;padding-left:11px;margin-bottom:10px">
-              ${stop.from} → ${stop.to}
-            </div>
-            <a href="/day/${stop.day}"
-               style="display:flex;align-items:center;justify-content:space-between;margin:0 2px;padding:6px 10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:7px;color:#c4b5fd;font-size:11px;font-weight:600;text-decoration:none;transition:background 0.15s;">
-              View Day ${stop.day}
-              <span style="margin-left:6px;opacity:0.8">→</span>
-            </a>
-          </div>
-        `);
-
-        const marker = new mapboxgl.Marker({ element: el })
-          .setLngLat(stop.coord)
-          .setPopup(popup)
-          .addTo(m);
-
-        // Keep popup visible when moving between the marker and the popup itself.
-        // A 120ms grace period covers the gap between the two elements.
-        let hideTimer: ReturnType<typeof setTimeout> | null = null;
-
-        const showPopup = () => {
-          if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
-          if (!marker.getPopup()?.isOpen()) marker.getPopup()?.addTo(m);
-        };
-
-        const scheduleHide = () => {
-          hideTimer = setTimeout(() => {
-            marker.getPopup()?.remove();
-            hideTimer = null;
-          }, 120);
-        };
-
-        el.addEventListener('mouseenter', showPopup);
-        el.addEventListener('mouseleave', scheduleHide);
-
-        // Clicking the circle also navigates directly
-        el.addEventListener('click', () => { window.location.href = `/day/${stop.day}`; });
-
-        // Attach hover handlers to popup once it opens
-        popup.on('open', () => {
-          const popupEl = popup.getElement();
-          if (popupEl) {
-            popupEl.addEventListener('mouseenter', showPopup);
-            popupEl.addEventListener('mouseleave', scheduleHide);
-          }
-        });
-      });
+      // Numbered day-boundary markers used to live here, each with its own
+      // "Day N, from → to, View Day N" popup. Removed: the line-hover popup
+      // now shows richer info (distance/elevation) for the whole segment, and
+      // clicking anywhere on the line already navigates to the day page —
+      // the markers were pure duplication once that shipped.
 
       setMapLoaded(true);
     });

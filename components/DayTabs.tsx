@@ -11,6 +11,7 @@ import PhotoGallery from '@/components/PhotoGallery';
 import Comments from '@/components/Comments';
 import { DayData } from '@/types';
 import { cn } from '@/lib/utils';
+import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 
 interface DayTabsProps {
   day: DayData;
@@ -96,11 +97,11 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
             <div className="p-5 grid grid-cols-2 gap-3">
               <div className="bg-slate-900/60 rounded-lg p-3">
                 <div className="text-slate-500 text-xs uppercase tracking-wider">Distance</div>
-                <div className="text-slate-200 font-semibold text-lg">{day.distance_km} km</div>
+                <div className="text-slate-200 font-semibold text-lg"><DistanceValue km={day.distance_km} /></div>
               </div>
               <div className="bg-slate-900/60 rounded-lg p-3">
                 <div className="text-slate-500 text-xs uppercase tracking-wider">Elevation</div>
-                <div className="text-slate-200 font-semibold text-lg">{day.elevation_m} m</div>
+                <div className="text-slate-200 font-semibold text-lg"><ElevationValue m={day.elevation_m} /></div>
               </div>
             </div>
           </div>
@@ -137,11 +138,11 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Distance</span>
-                  <span className="text-slate-200 font-medium">{day.distance_km} km</span>
+                  <span className="text-slate-200 font-medium"><DistanceValue km={day.distance_km} /></span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Elevation</span>
-                  <span className="text-slate-200 font-medium">{day.elevation_m} m</span>
+                  <span className="text-slate-200 font-medium"><ElevationValue m={day.elevation_m} /></span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">From</span>

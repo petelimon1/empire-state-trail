@@ -6,6 +6,7 @@ import { MapPin, TrendingUp, ArrowRight, CheckCircle2, Clock, Calendar } from 'l
 import { DayData, DayStatus } from '@/types';
 import { formatShortDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 
 interface DayCardProps {
   day: DayData;
@@ -92,11 +93,11 @@ export default function DayCard({ day, status, index }: DayCardProps) {
           <div className="flex items-center gap-4 mt-2 mb-3">
             <div className="flex items-center gap-1 text-xs text-slate-400">
               <MapPin className="w-3 h-3" />
-              <span>{day.distance_km} km</span>
+              <DistanceValue km={day.distance_km} />
             </div>
             <div className="flex items-center gap-1 text-xs text-slate-400">
               <TrendingUp className="w-3 h-3" />
-              <span>{day.elevation_m}m</span>
+              <ElevationValue m={day.elevation_m} />
             </div>
             {day.id === 5 && (
               <span className="text-xs text-red-400 font-medium">Longest day</span>
