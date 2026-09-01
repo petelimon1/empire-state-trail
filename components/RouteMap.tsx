@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { ROUTE_GEOMETRY } from '@/lib/routeGeometry';
+import { DAYS_DATA } from '@/lib/tripData';
 
 interface RouteMapProps {
   height?: string;
@@ -13,15 +14,32 @@ interface RouteMapProps {
   dayStatuses?: Record<number, 'upcoming' | 'active' | 'completed'>;
 }
 
-const DAY_SEGMENTS = [
-  { day: 1, from: 'Poughkeepsie', to: 'Hudson',       color: '#10b981', coords: ROUTE_GEOMETRY[1] },
-  { day: 2, from: 'Hudson',       to: 'Albany',       color: '#06b6d4', coords: ROUTE_GEOMETRY[2] },
-  { day: 3, from: 'Albany',       to: 'Fort Edward',  color: '#60a5fa', coords: ROUTE_GEOMETRY[3] },
-  { day: 4, from: 'Fort Edward',  to: 'Crown Point',  color: '#a78bfa', coords: ROUTE_GEOMETRY[4] },
-  { day: 5, from: 'Crown Point',  to: 'Plattsburgh',  color: '#e879f9', coords: ROUTE_GEOMETRY[5] },
-  { day: 6, from: 'Plattsburgh',  to: 'Napierville',  color: '#fb923c', coords: ROUTE_GEOMETRY[6] },
-  { day: 7, from: 'Napierville',  to: 'Montreal',     color: '#f472b6', coords: ROUTE_GEOMETRY[7] },
-];
+// Deep, saturated colors (Tailwind's 700-weight shades) so each day reads as
+// clearly distinct even at the dimmed "upcoming" opacity — the lighter 400/500
+// shades used before all washed out to look nearly identical at low opacity.
+const DAY_COLORS: Record<number, string> = {
+  1: '#15803d', // green-700
+  2: '#0e7490', // cyan-700
+  3: '#1d4ed8', // blue-700
+  4: '#6d28d9', // violet-700
+  5: '#a21caf', // fuchsia-700
+  6: '#c2410c', // orange-700
+  7: '#be123c', // rose-700
+};
+
+// Pulls from the real trip data + decoded Strava geometry, so distance/
+// elevation/route link shown on hover always match the day pages — no
+// separate copy to keep in sync.
+const DAY_SEGMENTS = DAYS_DATA.map((day) => ({
+  day: day.id,
+  from: day.from_location,
+  to: day.to_location,
+  color: DAY_COLORS[day.id],
+  coords: ROUTE_GEOMETRY[day.id],
+  distanceKm: day.distance_km,
+  elevationM: day.elevation_m,
+  routeUrl: day.route_url,
+}));
 
 // Overnight stop: the actual last point of each day's road route (day 7 ends
 // at the finish marker instead). Colors match DAY_SEGMENTS above.
@@ -159,8 +177,11 @@ export default function RouteMap({
       // --- Route line layers (road-accurate, from each day's Strava route) ---
       DAY_SEGMENTS.forEach((seg) => {
         const status = dayStatuses?.[seg.day];
-        const opacity = status === 'upcoming' ? 0.35 : 0.9;
-        const width = status === 'active' ? 5 : 4;
+        // Upcoming days used to sit at 0.35 opacity, which washed every color
+        // out to look nearly identical. Bumped up so the distinct per-day
+        // colors actually read at a glance.
+        const opacity = status === 'upcoming' ? 0.75 : status === 'completed' ? 0.9 : 1;
+        const width = status === 'active' ? 6 : 4.5;
 
         m.addSource(`route-day-${seg.day}`, {
           type: 'geojson',
@@ -179,8 +200,8 @@ export default function RouteMap({
           layout: { 'line-join': 'round', 'line-cap': 'round' },
           paint: {
             'line-color': '#000000',
-            'line-width': 6,
-            'line-opacity': 0.15,
+            'line-width': width + 2,
+            'line-opacity': 0.2,
           },
         });
 
@@ -196,6 +217,65 @@ export default function RouteMap({
             'line-opacity': opacity,
           },
         });
+
+        // Wide invisible hit-area on top — a 4-4.5px line is a hard target to
+        // hover precisely, so widen just the interactive layer to ~20px.
+        m.addLayer({
+          id: `line-day-${seg.day}-hit`,
+          type: 'line',
+          source: `route-day-${seg.day}`,
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#000000', 'line-width': 20, 'line-opacity': 0 },
+        });
+      });
+
+      // --- Hover popup for route lines: distance, elevation, Strava link ---
+      const hoverPopup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 12,
+        maxWidth: '220px',
+      });
+
+      DAY_SEGMENTS.forEach((seg) => {
+        const layerId = `line-day-${seg.day}-hit`;
+
+        m.on('mouseenter', layerId, () => {
+          m.getCanvas().style.cursor = 'pointer';
+        });
+
+        m.on('mousemove', layerId, (e) => {
+          hoverPopup.setLngLat(e.lngLat).setHTML(`
+            <div style="font-family:system-ui,sans-serif;padding:2px 0">
+              <div style="font-weight:700;color:#e2e8f0;font-size:13px;border-left:3px solid ${seg.color};padding-left:8px;margin-bottom:6px">
+                Day ${seg.day}: ${seg.from} → ${seg.to}
+              </div>
+              <div style="display:flex;gap:14px;padding-left:11px;margin-bottom:8px">
+                <div>
+                  <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.03em">Distance</div>
+                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.distanceKm} km</div>
+                </div>
+                <div>
+                  <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.03em">Elevation</div>
+                  <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.elevationM} m</div>
+                </div>
+              </div>
+              <a href="${seg.routeUrl}" target="_blank" rel="noopener noreferrer"
+                 style="display:flex;align-items:center;justify-content:space-between;margin:0 2px;padding:6px 10px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:7px;color:#fdba74;font-size:11px;font-weight:600;text-decoration:none;">
+                View on Strava
+                <span style="margin-left:6px;opacity:0.8">→</span>
+              </a>
+            </div>
+          `).addTo(m);
+        });
+
+        m.on('mouseleave', layerId, () => {
+          m.getCanvas().style.cursor = '';
+          hoverPopup.remove();
+        });
+
+        // Tapping a line on mobile (no hover) jumps straight to the day page.
+        m.on('click', layerId, () => { window.location.href = `/day/${seg.day}`; });
       });
 
       // --- Fit bounds to the actual route geometry ---
