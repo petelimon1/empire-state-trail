@@ -81,7 +81,7 @@ export const DAYS_DATA: DayData[] = [
     elevation_m: 422,
     route_url: 'https://www.strava.com/routes/3509774140284331634',
     strava_activity_id: null,
-    accommodation_name: 'Booked — Albany',
+    accommodation_name: 'Airbnb — Albany',
     accommodation_url: null,
     accommodation_booking_ref: null,
     accommodation_notes: 'No laundry, laundromat nearby. Free cancellation before 3pm Sep 5. Maybe a quick Uber to Dinosaur BBQ in Troy tonight!',
@@ -137,7 +137,7 @@ export const DAYS_DATA: DayData[] = [
     elevation_m: 1079,
     route_url: 'https://www.strava.com/routes/3509747882131398512',
     strava_activity_id: null,
-    accommodation_name: 'Booked — Crown Point',
+    accommodation_name: 'Airbnb — Crown Point',
     accommodation_url: null,
     accommodation_booking_ref: null,
     accommodation_notes: 'Check-in from 4pm, check-out 11am. No laundry, laundromat nearby.',
@@ -196,7 +196,7 @@ export const DAYS_DATA: DayData[] = [
     elevation_m: 236,
     route_url: 'https://www.strava.com/routes/3528107852197359460',
     strava_activity_id: null,
-    accommodation_name: 'Motel — Napierville, QC',
+    accommodation_name: 'Motel — Napierville',
     accommodation_url: null,
     accommodation_booking_ref: null,
     accommodation_notes: 'Collect key at the restaurant when checking in. Bikes OK in room. Not yet paid.',
@@ -244,9 +244,9 @@ export const DAYS_DATA: DayData[] = [
 
 // Post-ride day IDs: 9 = Sat Sep 12, 10 = Sun Sep 13, 11 = Mon Sep 14
 export const POST_HIKE_DAYS = [
-  { id: 9, date: '2026-09-12', label: 'Saturday, Sep 12', title: 'Montreal' },
-  { id: 10, date: '2026-09-13', label: 'Sunday, Sep 13', title: 'Montreal — rental car pickup' },
-  { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Drive home to Brooklyn' },
+  { id: 9, date: '2026-09-12', label: 'Saturday, Sep 12', title: 'Montreal - Plans TBD' },
+  { id: 10, date: '2026-09-13', label: 'Sunday, Sep 13', title: 'Montreal - Plans TBD' },
+  { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Rental car pickup 9am, drive back to Brooklyn' },
 ];
 
 export const TRIP_STATS = {

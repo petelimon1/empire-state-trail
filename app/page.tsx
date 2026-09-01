@@ -250,17 +250,17 @@ export default async function HomePage() {
               <div className="space-y-4">
                 <PostHikeDay
                   label="Sat Sep 12"
-                  fallback="Montreal"
+                  fallback="Montreal - Plans TBD"
                   content={postHikeDiary[9]}
                 />
                 <PostHikeDay
                   label="Sun Sep 13"
-                  fallback="Montreal — rental car pickup"
+                  fallback="Montreal - Plans TBD"
                   content={postHikeDiary[10]}
                 />
                 <PostHikeDay
                   label="Mon Sep 14"
-                  fallback="Drive home — rental car, Montreal to Brooklyn"
+                  fallback="Rental car pickup 9am, drive back to Brooklyn"
                   content={postHikeDiary[11]}
                 />
               </div>

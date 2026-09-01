@@ -72,7 +72,7 @@ export default async function PostHikePage() {
             Post-ride
           </h1>
           <p className="text-slate-400 text-lg">
-            Montreal · Sep 12–14 · Flying home Monday
+            Montreal · Sep 12–14 · Driving home Monday
           </p>
         </div>
       </div>

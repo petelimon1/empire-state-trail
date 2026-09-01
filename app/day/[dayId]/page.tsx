@@ -222,7 +222,7 @@ export default async function DayPage({ params }: PageProps) {
                     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
                   })}
                   <DayHeaderStats distanceKm={day.distance_km} elevationM={day.elevation_m} stravaStats={stravaStats} />
-                  {day.id === 5 ? ' · Longest day' : day.id === 7 ? ' · Final day 🏁' : ''}
+                  {day.id === 7 ? ' · Final day 🏁' : ''}
                 </span>
               </div>
 

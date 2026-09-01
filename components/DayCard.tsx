@@ -99,9 +99,6 @@ export default function DayCard({ day, status, index }: DayCardProps) {
               <TrendingUp className="w-3 h-3" />
               <ElevationValue m={day.elevation_m} />
             </div>
-            {day.id === 5 && (
-              <span className="text-xs text-red-400 font-medium">Longest day</span>
-            )}
           </div>
 
           {/* Progress bar */}
