@@ -250,7 +250,7 @@ export default function RouteMap({
               <div style="font-weight:700;color:#e2e8f0;font-size:13px;border-left:3px solid ${seg.color};padding-left:8px;margin-bottom:6px">
                 Day ${seg.day}: ${seg.from} → ${seg.to}
               </div>
-              <div style="display:flex;gap:14px;padding-left:11px;margin-bottom:8px">
+              <div style="display:flex;gap:14px;padding-left:11px;margin-bottom:6px">
                 <div>
                   <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.03em">Distance</div>
                   <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.distanceKm} km</div>
@@ -260,11 +260,7 @@ export default function RouteMap({
                   <div style="color:#cbd5e1;font-size:13px;font-weight:600">${seg.elevationM} m</div>
                 </div>
               </div>
-              <a href="${seg.routeUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:flex;align-items:center;justify-content:space-between;margin:0 2px;padding:6px 10px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:7px;color:#fdba74;font-size:11px;font-weight:600;text-decoration:none;">
-                View on Strava
-                <span style="margin-left:6px;opacity:0.8">→</span>
-              </a>
+              <div style="padding-left:11px;color:#475569;font-size:10px">Click for day details →</div>
             </div>
           `).addTo(m);
         });
