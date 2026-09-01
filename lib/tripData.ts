@@ -192,8 +192,8 @@ export const DAYS_DATA: DayData[] = [
     title: 'Plattsburgh to Napierville, QC',
     from_location: 'Plattsburgh',
     to_location: 'Napierville',
-    distance_km: 59.9,
-    elevation_m: 216,
+    distance_km: 67.9,
+    elevation_m: 236,
     route_url: 'https://www.strava.com/routes/3528107852197359460',
     strava_activity_id: null,
     accommodation_name: 'Motel — Napierville, QC',
@@ -250,8 +250,8 @@ export const POST_HIKE_DAYS = [
 ];
 
 export const TRIP_STATS = {
-  totalDistance: 556.5,
-  totalElevation: 4106,
+  totalDistance: 564.5,
+  totalElevation: 4126,
   totalDays: 7,
 };
 
