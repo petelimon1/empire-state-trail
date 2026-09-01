@@ -84,6 +84,22 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
     }
   }
 
+  function handleCaptionChange(photoId: string, caption: string) {
+    setPhotos((prev) => prev.map((p) => (p.id === photoId ? { ...p, caption } : p)));
+  }
+
+  async function saveCaption(photoId: string, caption: string) {
+    try {
+      await fetch('/api/photos', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: photoId, caption }),
+      });
+    } catch (err) {
+      console.error('Caption save failed:', err);
+    }
+  }
+
   function openLightbox(index: number) {
     setLightboxIndex(index);
     document.body.style.overflow = 'hidden';
@@ -200,28 +216,43 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
         ) : (
           <div className="columns-2 sm:columns-3 gap-2">
             {photos.map((photo, index) => (
-              <div
-                key={photo.id}
-                className="relative break-inside-avoid mb-2 rounded-lg overflow-hidden group cursor-pointer"
-                onClick={() => openLightbox(index)}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.public_url}
-                  alt={photo.caption || `Photo ${index + 1}`}
-                  className="w-full h-auto block transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div key={photo.id} className="relative break-inside-avoid mb-2 rounded-lg overflow-hidden bg-slate-900/40">
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={() => openLightbox(index)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.public_url}
+                    alt={photo.caption || `Photo ${index + 1}`}
+                    className="w-full h-auto block transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  {isAdmin && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3.5 h-3.5 text-white" />
+                    </button>
+                  )}
                 </div>
-                {isAdmin && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDelete(photo.id); }}
-                    className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-3.5 h-3.5 text-white" />
-                  </button>
+                {isAdmin ? (
+                  <input
+                    type="text"
+                    value={photo.caption || ''}
+                    onChange={(e) => handleCaptionChange(photo.id, e.target.value)}
+                    onBlur={(e) => saveCaption(photo.id, e.target.value)}
+                    placeholder="Add a caption..."
+                    className="w-full bg-slate-900/80 text-slate-300 placeholder-slate-600 text-xs px-2 py-1.5 outline-none border-t border-slate-800 focus:bg-slate-800"
+                  />
+                ) : (
+                  photo.caption && (
+                    <p className="text-slate-500 text-xs px-2 py-1.5 border-t border-slate-800/60">{photo.caption}</p>
+                  )
                 )}
               </div>
             ))}

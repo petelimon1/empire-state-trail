@@ -302,6 +302,28 @@ export default function AdminDashboardClient() {
     }
   }
 
+  function updatePhotoCaption(dayId: number, photoId: string, caption: string) {
+    setDaySections((prev) => ({
+      ...prev,
+      [dayId]: {
+        ...prev[dayId],
+        photos: prev[dayId].photos.map((p) => (p.id === photoId ? { ...p, caption } : p)),
+      },
+    }));
+  }
+
+  async function savePhotoCaption(photoId: string, caption: string) {
+    try {
+      await fetch('/api/photos', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: photoId, caption }),
+      });
+    } catch (err) {
+      console.error('Caption save error:', err);
+    }
+  }
+
   async function deleteComment(dayId: number, commentId: string) {
     if (!confirm('Delete this comment? This cannot be undone.')) return;
     try {
@@ -1175,18 +1197,28 @@ export default function AdminDashboardClient() {
                         {section.photos.length > 0 ? (
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                             {section.photos.map((photo) => (
-                              <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden group">
-                                <img
-                                  src={photo.public_url}
-                                  alt="Uploaded photo"
-                                  className="w-full h-full object-cover"
+                              <div key={photo.id} className="rounded-lg overflow-hidden bg-slate-900/60">
+                                <div className="relative aspect-square group">
+                                  <img
+                                    src={photo.public_url}
+                                    alt="Uploaded photo"
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <button
+                                    onClick={() => deletePhoto(day.id, photo.id)}
+                                    className="absolute top-1 right-1 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="w-3.5 h-3.5 text-white" />
+                                  </button>
+                                </div>
+                                <input
+                                  type="text"
+                                  value={photo.caption || ''}
+                                  onChange={(e) => updatePhotoCaption(day.id, photo.id, e.target.value)}
+                                  onBlur={(e) => savePhotoCaption(photo.id, e.target.value)}
+                                  placeholder="Caption..."
+                                  className="w-full bg-slate-900 text-slate-300 placeholder-slate-600 text-xs px-1.5 py-1 outline-none border-t border-slate-800 focus:bg-slate-800"
                                 />
-                                <button
-                                  onClick={() => deletePhoto(day.id, photo.id)}
-                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <X className="w-3.5 h-3.5 text-white" />
-                                </button>
                               </div>
                             ))}
                           </div>

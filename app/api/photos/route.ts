@@ -101,6 +101,36 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  const isAdmin = await getAdminSession();
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { id, caption } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Photo id required' }, { status: 400 });
+    }
+
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from('photos')
+      .update({ caption: caption || null })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ photo: data });
+  } catch (err) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   const isAdmin = await getAdminSession();
   if (!isAdmin) {

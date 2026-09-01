@@ -16,6 +16,7 @@ interface DayTabsProps {
   day: DayData;
   stravaActivityId: string | null;
   isToday: boolean;
+  isAdmin?: boolean;
   garminLivetrackUrl: string | null;
   departureTime?: string | null;
   arrivalTime?: string | null;
@@ -32,7 +33,7 @@ const TABS = [
 
 type TabId = typeof TABS[number]['id'];
 
-export default function DayTabs({ day, stravaActivityId, isToday, garminLivetrackUrl, departureTime, arrivalTime }: DayTabsProps) {
+export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = false, garminLivetrackUrl, departureTime, arrivalTime }: DayTabsProps) {
   const [active, setActive] = useState<TabId>('activity');
 
   return (
@@ -115,7 +116,7 @@ export default function DayTabs({ day, stravaActivityId, isToday, garminLivetrac
 
       {/* Photos */}
       <div className={active === 'photos' ? 'block' : 'hidden'}>
-        <PhotoGallery dayId={day.id} />
+        <PhotoGallery dayId={day.id} isAdmin={isAdmin} />
       </div>
 
       {/* Comments */}

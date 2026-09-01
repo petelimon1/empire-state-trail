@@ -20,6 +20,7 @@ import { createSafeClient } from '@/lib/supabase';
 import { getStravaActivity, formatDuration, formatDistance } from '@/lib/strava';
 import { cn } from '@/lib/utils';
 import TimezoneDisplay from '@/components/TimezoneDisplay';
+import { getAdminSession } from '@/lib/auth';
 
 interface PageProps {
   params: { dayId: string };
@@ -141,11 +142,12 @@ export default async function DayPage({ params }: PageProps) {
   const nextDay = DAYS_DATA.find((d) => d.id === dayId + 1);
   const status = getDayStatus(day);
 
-  const [tripStatus, stravaActivityId, heroPhoto, dayTimes] = await Promise.all([
+  const [tripStatus, stravaActivityId, heroPhoto, dayTimes, isAdmin] = await Promise.all([
     getTripStatus(),
     getStravaActivityId(dayId),
     getFirstPhoto(dayId),
     getDayTimes(dayId),
+    getAdminSession(),
   ]);
 
   // isToday: either the calendar date matches, OR admin has manually set current_day to this day
@@ -294,6 +296,7 @@ export default async function DayPage({ params }: PageProps) {
               day={day}
               stravaActivityId={stravaActivityId}
               isToday={isToday}
+              isAdmin={isAdmin}
               garminLivetrackUrl={tripStatus?.garmin_livetrack_url ?? null}
               departureTime={dayTimes.departure_time}
               arrivalTime={dayTimes.arrival_time}
