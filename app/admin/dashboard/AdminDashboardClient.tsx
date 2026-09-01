@@ -302,6 +302,14 @@ export default function AdminDashboardClient() {
     }
   }
 
+  // Grows a caption textarea to fit its content, so a long caption is fully
+  // visible while editing instead of scrolling past the box.
+  function autoGrow(el: HTMLTextAreaElement | null) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }
+
   function updatePhotoCaption(dayId: number, photoId: string, caption: string) {
     setDaySections((prev) => ({
       ...prev,
@@ -1211,13 +1219,17 @@ export default function AdminDashboardClient() {
                                     <X className="w-3.5 h-3.5 text-white" />
                                   </button>
                                 </div>
-                                <input
-                                  type="text"
+                                <textarea
                                   value={photo.caption || ''}
-                                  onChange={(e) => updatePhotoCaption(day.id, photo.id, e.target.value)}
+                                  onChange={(e) => {
+                                    updatePhotoCaption(day.id, photo.id, e.target.value);
+                                    autoGrow(e.target);
+                                  }}
                                   onBlur={(e) => savePhotoCaption(photo.id, e.target.value)}
+                                  ref={autoGrow}
+                                  rows={1}
                                   placeholder="Caption..."
-                                  className="w-full bg-slate-900 text-slate-300 placeholder-slate-600 text-xs px-1.5 py-1 outline-none border-t border-slate-800 focus:bg-slate-800"
+                                  className="w-full bg-slate-900 text-slate-300 placeholder-slate-600 text-xs px-1.5 py-1 outline-none border-t border-slate-800 focus:bg-slate-800 resize-none overflow-hidden block"
                                 />
                               </div>
                             ))}

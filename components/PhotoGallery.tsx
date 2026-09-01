@@ -88,6 +88,14 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
     setPhotos((prev) => prev.map((p) => (p.id === photoId ? { ...p, caption } : p)));
   }
 
+  // Grows a caption textarea to fit its content — called on mount (via ref)
+  // and on every keystroke, so a long caption is fully visible while editing.
+  function autoGrow(el: HTMLTextAreaElement | null) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }
+
   async function saveCaption(photoId: string, caption: string) {
     try {
       await fetch('/api/photos', {
@@ -241,17 +249,21 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
                   )}
                 </div>
                 {isAdmin ? (
-                  <input
-                    type="text"
+                  <textarea
                     value={photo.caption || ''}
-                    onChange={(e) => handleCaptionChange(photo.id, e.target.value)}
+                    onChange={(e) => {
+                      handleCaptionChange(photo.id, e.target.value);
+                      autoGrow(e.target);
+                    }}
                     onBlur={(e) => saveCaption(photo.id, e.target.value)}
+                    ref={autoGrow}
+                    rows={1}
                     placeholder="Add a caption..."
-                    className="w-full bg-slate-900/80 text-slate-300 placeholder-slate-600 text-xs px-2 py-1.5 outline-none border-t border-slate-800 focus:bg-slate-800"
+                    className="w-full bg-slate-900/80 text-slate-300 placeholder-slate-600 text-xs px-2 py-1.5 outline-none border-t border-slate-800 focus:bg-slate-800 resize-none overflow-hidden block"
                   />
                 ) : (
                   photo.caption && (
-                    <p className="text-slate-500 text-xs px-2 py-1.5 border-t border-slate-800/60">{photo.caption}</p>
+                    <p className="text-slate-500 text-xs px-2 py-1.5 border-t border-slate-800/60 whitespace-pre-wrap">{photo.caption}</p>
                   )
                 )}
               </div>
@@ -296,7 +308,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
             </div>
             {photos[lightboxIndex].caption && (
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-4 text-center">
-                <p className="text-slate-300 text-sm">{photos[lightboxIndex].caption}</p>
+                <p className="text-slate-300 text-sm whitespace-pre-wrap">{photos[lightboxIndex].caption}</p>
               </div>
             )}
           </div>
