@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { ROUTE_GEOMETRY } from '@/lib/routeGeometry';
 
 interface RouteMapProps {
   height?: string;
@@ -12,38 +13,29 @@ interface RouteMapProps {
   dayStatuses?: Record<number, 'upcoming' | 'active' | 'completed'>;
 }
 
-// Approximate waypoints (city centers), [lng, lat]. Not a road-accurate
-// polyline — swap in a GPX export from the Strava routes for a precise line.
-const ALL_COORDS: [number, number][] = [
-  [-73.9210, 41.7004],  // 0: Poughkeepsie (start)
-  [-73.7902, 42.2528],  // 1: Hudson
-  [-73.7562, 42.6526],  // 2: Albany
-  [-73.5843, 43.2634],  // 3: Fort Edward
-  [-73.4334, 43.9453],  // 4: Crown Point
-  [-73.4529, 44.6995],  // 5: Plattsburgh
-  [-73.3945, 45.1319],  // 6: Napierville area, QC
-  [-73.5674, 45.5019],  // 7: Montreal (finish)
-];
-
 const DAY_SEGMENTS = [
-  { day: 1, from: 'Poughkeepsie', to: 'Hudson',        color: '#10b981', coords: ALL_COORDS.slice(0, 2) },
-  { day: 2, from: 'Hudson',       to: 'Albany',        color: '#06b6d4', coords: ALL_COORDS.slice(1, 3) },
-  { day: 3, from: 'Albany',       to: 'Fort Edward',   color: '#60a5fa', coords: ALL_COORDS.slice(2, 4) },
-  { day: 4, from: 'Fort Edward',  to: 'Crown Point',   color: '#a78bfa', coords: ALL_COORDS.slice(3, 5) },
-  { day: 5, from: 'Crown Point',  to: 'Plattsburgh',   color: '#e879f9', coords: ALL_COORDS.slice(4, 6) },
-  { day: 6, from: 'Plattsburgh',  to: 'Napierville',   color: '#fb923c', coords: ALL_COORDS.slice(5, 7) },
-  { day: 7, from: 'Napierville',  to: 'Montreal',      color: '#f472b6', coords: ALL_COORDS.slice(6, 8) },
+  { day: 1, from: 'Poughkeepsie', to: 'Hudson',       color: '#10b981', coords: ROUTE_GEOMETRY[1] },
+  { day: 2, from: 'Hudson',       to: 'Albany',       color: '#06b6d4', coords: ROUTE_GEOMETRY[2] },
+  { day: 3, from: 'Albany',       to: 'Fort Edward',  color: '#60a5fa', coords: ROUTE_GEOMETRY[3] },
+  { day: 4, from: 'Fort Edward',  to: 'Crown Point',  color: '#a78bfa', coords: ROUTE_GEOMETRY[4] },
+  { day: 5, from: 'Crown Point',  to: 'Plattsburgh',  color: '#e879f9', coords: ROUTE_GEOMETRY[5] },
+  { day: 6, from: 'Plattsburgh',  to: 'Napierville',  color: '#fb923c', coords: ROUTE_GEOMETRY[6] },
+  { day: 7, from: 'Napierville',  to: 'Montreal',     color: '#f472b6', coords: ROUTE_GEOMETRY[7] },
 ];
 
-// Overnight stop: end coord of each day 1-6 (day 7 ends at the finish marker)
-const OVERNIGHT_STOPS: { day: number; coord: [number, number]; color: string; from: string; to: string }[] = [
-  { day: 1, coord: [-73.7902, 42.2528], color: '#10b981', from: 'Poughkeepsie', to: 'Hudson'       },
-  { day: 2, coord: [-73.7562, 42.6526], color: '#06b6d4', from: 'Hudson',       to: 'Albany'       },
-  { day: 3, coord: [-73.5843, 43.2634], color: '#60a5fa', from: 'Albany',       to: 'Fort Edward'  },
-  { day: 4, coord: [-73.4334, 43.9453], color: '#a78bfa', from: 'Fort Edward',  to: 'Crown Point'  },
-  { day: 5, coord: [-73.4529, 44.6995], color: '#e879f9', from: 'Crown Point',  to: 'Plattsburgh'  },
-  { day: 6, coord: [-73.3945, 45.1319], color: '#fb923c', from: 'Plattsburgh',  to: 'Napierville'  },
-];
+// Overnight stop: the actual last point of each day's road route (day 7 ends
+// at the finish marker instead). Colors match DAY_SEGMENTS above.
+const OVERNIGHT_STOPS: { day: number; coord: [number, number]; color: string; from: string; to: string }[] =
+  DAY_SEGMENTS.filter((s) => s.day < 7).map((s) => ({
+    day: s.day,
+    coord: s.coords[s.coords.length - 1],
+    color: s.color,
+    from: s.from,
+    to: s.to,
+  }));
+
+const START_COORD = DAY_SEGMENTS[0].coords[0];
+const FINISH_COORD = DAY_SEGMENTS[DAY_SEGMENTS.length - 1].coords[DAY_SEGMENTS[DAY_SEGMENTS.length - 1].coords.length - 1];
 
 export default function RouteMap({
   height = '560px',
@@ -164,7 +156,7 @@ export default function RouteMap({
     mapRef.current.on('load', () => {
       const m = mapRef.current!;
 
-      // --- Route line layers ---
+      // --- Route line layers (road-accurate, from each day's Strava route) ---
       DAY_SEGMENTS.forEach((seg) => {
         const status = dayStatuses?.[seg.day];
         const opacity = status === 'upcoming' ? 0.35 : 0.9;
@@ -206,8 +198,9 @@ export default function RouteMap({
         });
       });
 
-      // --- Fit bounds ---
-      const bounds = ALL_COORDS.reduce<[[number, number], [number, number]]>(
+      // --- Fit bounds to the actual route geometry ---
+      const allCoords = DAY_SEGMENTS.flatMap((seg) => seg.coords);
+      const bounds = allCoords.reduce<[[number, number], [number, number]]>(
         (b, c) => [
           [Math.min(b[0][0], c[0]), Math.min(b[0][1], c[1])],
           [Math.max(b[1][0], c[0]), Math.max(b[1][1], c[1])],
@@ -223,17 +216,17 @@ export default function RouteMap({
       const startEl = document.createElement('div');
       startEl.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:#10b981;border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4)">S</div>`;
       new mapboxgl.Marker({ element: startEl })
-        .setLngLat([-73.9210, 41.7004])
+        .setLngLat(START_COORD)
         .addTo(m);
 
       // --- Finish marker (Montreal) ---
       const finishEl = document.createElement('div');
       finishEl.innerHTML = `<div style="width:28px;height:28px;border-radius:50%;background:#f87171;border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4)">F</div>`;
       new mapboxgl.Marker({ element: finishEl })
-        .setLngLat([-73.5674, 45.5019])
+        .setLngLat(FINISH_COORD)
         .addTo(m);
 
-      // --- Overnight stop markers (days 1-7) ---
+      // --- Overnight stop markers (days 1-6) ---
       OVERNIGHT_STOPS.forEach((stop) => {
         const el = document.createElement('div');
         el.innerHTML = `<div style="width:24px;height:24px;border-radius:50%;background:${stop.color};border:2px solid white;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4);cursor:pointer">${stop.day}</div>`;
@@ -325,7 +318,7 @@ export default function RouteMap({
         borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.08)',
       }}>
         {DAY_SEGMENTS.map(seg => (
-          <div key={seg.day} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: seg.day < 8 ? 5 : 0 }}>
+          <div key={seg.day} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: seg.day < 7 ? 5 : 0 }}>
             <div style={{ width: 24, height: 3, borderRadius: 2, background: seg.color }} />
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'system-ui' }}>Day {seg.day}</span>
           </div>
