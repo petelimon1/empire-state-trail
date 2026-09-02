@@ -8,6 +8,7 @@ import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 import LiveTrackFreshness from '@/components/LiveTrackFreshness';
+import TripProgressStrip from '@/components/TripProgressStrip';
 
 export const metadata: Metadata = {
   title: 'Empire State Trail 2026 | Pete & Lena\'s Ride',
@@ -185,36 +186,38 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
 
           {/* Progress Section */}
-          {tripInfo.phase !== 'before' && (
-            <section>
-              <div className="glass-card rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="font-display text-xl font-semibold text-slate-200">
-                      Journey Progress
-                    </h2>
-                    <p className="text-slate-500 text-sm mt-0.5">
-                      {completedDays} of {DAYS_DATA.length} days completed
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold font-display gradient-text">{progressPercent}%</div>
-                    <div className="text-slate-500 text-xs">complete</div>
-                  </div>
+          <section>
+            <div className="glass-card rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-display text-xl font-semibold text-slate-200">
+                    Journey Progress
+                  </h2>
+                  <p className="text-slate-500 text-sm mt-0.5">
+                    {tripInfo.phase === 'before'
+                      ? `${DAYS_DATA.length} riding days planned`
+                      : `${completedDays} of ${DAYS_DATA.length} days completed`}
+                  </p>
                 </div>
-                <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-highland-purple to-highland-green rounded-full transition-all duration-1000"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-slate-600">
-                  <span>Poughkeepsie</span>
-                  <span>Montreal</span>
+                <div className="text-right">
+                  <div className="text-3xl font-bold font-display gradient-text">{progressPercent}%</div>
+                  <div className="text-slate-500 text-xs">complete</div>
                 </div>
               </div>
-            </section>
-          )}
+              <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-highland-purple to-highland-green rounded-full transition-all duration-1000"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-slate-600">
+                <span>Poughkeepsie</span>
+                <span>Montreal</span>
+              </div>
+
+              <TripProgressStrip days={DAYS_DATA} dayStatuses={dayStatuses} />
+            </div>
+          </section>
 
           {/* Pre-ride travel day */}
           <section>
