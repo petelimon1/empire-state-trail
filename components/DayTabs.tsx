@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import {
   Activity, Map, BookOpen, Camera, MessageSquare, Info,
-  ExternalLink, Bed, UtensilsCrossed, ShoppingBag, CheckCircle2, AlertCircle,
+  ExternalLink, Bed, UtensilsCrossed, ShoppingBag, CheckCircle2, AlertCircle, Download,
 } from 'lucide-react';
 import StravaActivity from '@/components/StravaActivity';
 import DiaryEntry from '@/components/DiaryEntry';
 import PhotoGallery from '@/components/PhotoGallery';
 import Comments from '@/components/Comments';
+import ElevationProfileChart from '@/components/ElevationProfileChart';
 import { DayData } from '@/types';
 import { cn } from '@/lib/utils';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
@@ -19,8 +20,10 @@ interface DayTabsProps {
   isToday: boolean;
   isAdmin?: boolean;
   garminLivetrackUrl: string | null;
+  garminLivetrackUpdatedAt?: string | null;
   departureTime?: string | null;
   arrivalTime?: string | null;
+  elevationProfile?: { d: number; e: number }[];
 }
 
 const TABS = [
@@ -34,7 +37,7 @@ const TABS = [
 
 type TabId = typeof TABS[number]['id'];
 
-export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = false, garminLivetrackUrl, departureTime, arrivalTime }: DayTabsProps) {
+export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = false, garminLivetrackUrl, garminLivetrackUpdatedAt, departureTime, arrivalTime, elevationProfile }: DayTabsProps) {
   const [active, setActive] = useState<TabId>('activity');
 
   return (
@@ -72,6 +75,7 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
           activityId={stravaActivityId ?? day.strava_activity_id}
           isToday={isToday}
           garminLivetrackUrl={garminLivetrackUrl}
+          garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
           routeUrl={day.route_url}
         />
       </div>
@@ -103,6 +107,23 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
                 <div className="text-slate-500 text-xs uppercase tracking-wider">Elevation</div>
                 <div className="text-slate-200 font-semibold text-lg"><ElevationValue m={day.elevation_m} /></div>
               </div>
+            </div>
+
+            {elevationProfile && elevationProfile.length > 1 && (
+              <div className="px-5 pb-5">
+                <ElevationProfileChart profile={elevationProfile} />
+              </div>
+            )}
+
+            <div className="px-5 pb-5">
+              <a
+                href={`/api/gpx/${day.id}`}
+                download
+                className="flex items-center justify-center gap-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-300 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors w-full"
+              >
+                <Download className="w-4 h-4" />
+                Download GPX for this day
+              </a>
             </div>
           </div>
         ) : (

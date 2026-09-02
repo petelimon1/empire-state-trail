@@ -23,6 +23,8 @@ import TimezoneDisplay from '@/components/TimezoneDisplay';
 import { getAdminSession } from '@/lib/auth';
 import DayHeaderStats from '@/components/DayHeaderStats';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
+import LiveTrackFreshness from '@/components/LiveTrackFreshness';
+import { getElevationProfile } from '@/lib/routeElevation';
 
 interface PageProps {
   params: { dayId: string };
@@ -45,16 +47,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null, garmin_livetrack_url: null };
+  if (!supabase) return { current_day: null, garmin_livetrack_url: null, updated_at: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day, garmin_livetrack_url')
+      .select('current_day, garmin_livetrack_url, updated_at')
       .eq('id', 1)
       .single();
-    return data || { current_day: null, garmin_livetrack_url: null };
+    return data || { current_day: null, garmin_livetrack_url: null, updated_at: null };
   } catch {
-    return { current_day: null, garmin_livetrack_url: null };
+    return { current_day: null, garmin_livetrack_url: null, updated_at: null };
   }
 }
 
@@ -240,17 +242,20 @@ export default async function DayPage({ params }: PageProps) {
                 </h1>
 
                 {isToday && tripStatus?.garmin_livetrack_url && (
-                  <a
-                    href={tripStatus.garmin_livetrack_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-shrink-0 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl transition-colors text-sm shadow-lg shadow-amber-500/20"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-slate-900 animate-pulse" />
-                    <span className="hidden sm:inline">Watch Them Live</span>
-                    <span className="sm:hidden">Live</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                    <a
+                      href={tripStatus.garmin_livetrack_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl transition-colors text-sm shadow-lg shadow-amber-500/20"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-slate-900 animate-pulse" />
+                      <span className="hidden sm:inline">Watch Them Live</span>
+                      <span className="sm:hidden">Live</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <LiveTrackFreshness updatedAt={tripStatus?.updated_at} />
+                  </div>
                 )}
               </div>
 
@@ -298,8 +303,10 @@ export default async function DayPage({ params }: PageProps) {
               isToday={isToday}
               isAdmin={isAdmin}
               garminLivetrackUrl={tripStatus?.garmin_livetrack_url ?? null}
+              garminLivetrackUpdatedAt={tripStatus?.updated_at ?? null}
               departureTime={dayTimes.departure_time}
               arrivalTime={dayTimes.arrival_time}
+              elevationProfile={getElevationProfile(dayId)}
             />
           </div>
 

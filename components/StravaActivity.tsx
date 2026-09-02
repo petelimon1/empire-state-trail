@@ -6,12 +6,14 @@ import { StravaActivity as StravaActivityType } from '@/types';
 import { formatDuration, getStravaActivityUrl } from '@/lib/strava';
 import { useUnits } from './UnitsProvider';
 import { formatDistanceMeters, formatElevationM, formatPaceFromMps } from '@/lib/units';
+import LiveTrackFreshness from './LiveTrackFreshness';
 
 interface StravaActivityProps {
   dayId: number;
   activityId?: string | null;
   isToday: boolean;
   garminLivetrackUrl?: string | null;
+  garminLivetrackUpdatedAt?: string | null;
   routeUrl: string;
 }
 
@@ -20,6 +22,7 @@ export default function StravaActivity({
   activityId,
   isToday,
   garminLivetrackUrl,
+  garminLivetrackUpdatedAt,
   routeUrl,
 }: StravaActivityProps) {
   const { unit } = useUnits();
@@ -141,6 +144,9 @@ export default function StravaActivity({
           Watch Them Live — Garmin LiveTrack
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
+        <div className="flex justify-center mt-2">
+          <LiveTrackFreshness updatedAt={garminLivetrackUpdatedAt} />
+        </div>
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS, P
 import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
+import LiveTrackFreshness from '@/components/LiveTrackFreshness';
 
 export const metadata: Metadata = {
   title: 'Empire State Trail 2026 | Pete & Lena\'s Ride',
@@ -17,16 +18,16 @@ export const revalidate = 60;
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null, garmin_livetrack_url: null };
+  if (!supabase) return { current_day: null, garmin_livetrack_url: null, updated_at: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day, garmin_livetrack_url')
+      .select('current_day, garmin_livetrack_url, updated_at')
       .eq('id', 1)
       .single();
-    return data || { current_day: null, garmin_livetrack_url: null };
+    return data || { current_day: null, garmin_livetrack_url: null, updated_at: null };
   } catch {
-    return { current_day: null, garmin_livetrack_url: null };
+    return { current_day: null, garmin_livetrack_url: null, updated_at: null };
   }
 }
 
@@ -120,7 +121,7 @@ export default async function HomePage() {
 
           {/* Status Banner */}
           <div className="mt-10">
-            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={tripInfo.activeDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={tripStatus?.garmin_livetrack_url} completedDays={completedDays} />
+            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={tripInfo.activeDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={tripStatus?.garmin_livetrack_url} garminUpdatedAt={tripStatus?.updated_at} completedDays={completedDays} />
           </div>
 
           {/* Stats */}
@@ -283,12 +284,13 @@ export default async function HomePage() {
 }
 
 // Status Banner Component
-function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, completedDays }: {
+function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, garminUpdatedAt, completedDays }: {
   phase: 'before' | 'during' | 'after';
   daysUntil: number;
   activeDayId: number | null;
   isPreRideDay: boolean;
   garminUrl?: string | null;
+  garminUpdatedAt?: string | null;
   completedDays: number;
 }) {
   if (phase === 'before') {
@@ -345,7 +347,7 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
           </div>
         </div>
         {garminUrl && (
-          <div>
+          <div className="flex items-center gap-3 flex-wrap">
             <a
               href={garminUrl}
               target="_blank"
@@ -355,6 +357,7 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
               <Zap className="w-4 h-4" />
               Watch Them Live — Garmin LiveTrack
             </a>
+            <LiveTrackFreshness updatedAt={garminUpdatedAt} />
           </div>
         )}
       </div>
