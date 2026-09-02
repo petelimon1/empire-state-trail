@@ -88,6 +88,13 @@ CREATE TABLE IF NOT EXISTS trip_status (
 ALTER TABLE trip_status ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read trip status" ON trip_status FOR SELECT USING (true);
 
+-- Comments need to be added to the realtime publication explicitly — Supabase
+-- doesn't do this automatically for new tables. Without it, posting still
+-- works (the poster's own comment shows immediately via the API response),
+-- but comments from other visitors won't appear live for people already on
+-- the page; they'd only show up on next page load/refresh.
+ALTER PUBLICATION supabase_realtime ADD TABLE comments;
+
 -- Seed initial trip_status
 INSERT INTO trip_status (id, current_day) VALUES (1, NULL) ON CONFLICT DO NOTHING;
 
