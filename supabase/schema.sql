@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS days (
   elevation_m INTEGER,
   route_url TEXT,
   strava_activity_id BIGINT,
+  garmin_livetrack_url TEXT,
+  garmin_livetrack_updated_at TIMESTAMPTZ,
   accommodation_name TEXT,
   accommodation_url TEXT,
   accommodation_booking_ref TEXT,
@@ -28,6 +30,13 @@ CREATE TABLE IF NOT EXISTS days (
   end_lng DECIMAL(9,6),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration for existing databases: CREATE TABLE IF NOT EXISTS above is a
+-- no-op once the table already exists, so re-running this file after the
+-- LiveTrack-per-day change needs an explicit ALTER to pick up the new
+-- columns on a live `days` table.
+ALTER TABLE days ADD COLUMN IF NOT EXISTS garmin_livetrack_url TEXT;
+ALTER TABLE days ADD COLUMN IF NOT EXISTS garmin_livetrack_updated_at TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS diary_entries (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -78,7 +87,7 @@ CREATE POLICY "Auth users insert comments" ON comments FOR INSERT WITH CHECK (au
 CREATE TABLE IF NOT EXISTS trip_status (
   id INTEGER PRIMARY KEY DEFAULT 1,
   current_day INTEGER REFERENCES days(id),
-  garmin_livetrack_url TEXT,
+  garmin_livetrack_url TEXT, -- deprecated: LiveTrack is now stored per-day on days.garmin_livetrack_url; this column is no longer read or written
   current_lat DECIMAL(9,6),
   current_lng DECIMAL(9,6),
   location_updated_at TIMESTAMPTZ,

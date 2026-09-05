@@ -30,7 +30,6 @@ import { cn } from '@/lib/utils';
 
 interface TripStatus {
   current_day: number | null;
-  garmin_livetrack_url: string | null;
 }
 
 interface LiveLocation {
@@ -54,6 +53,10 @@ interface DaySection {
   saving: boolean;
   savingStrava: boolean;
   stravaMessage: string;
+  livetrackUrl: string;
+  livetrackUpdatedAt: string | null;
+  savingLivetrack: boolean;
+  livetrackMessage: string;
   uploading: boolean;
   uploadError: string;
   photos: Array<{ id: string; public_url: string; caption: string | null }>;
@@ -62,8 +65,7 @@ interface DaySection {
 
 export default function AdminDashboardClient() {
   const router = useRouter();
-  const [tripStatus, setTripStatus] = useState<TripStatus>({ current_day: null, garmin_livetrack_url: null });
-  const [garminUrl, setGarminUrl] = useState('');
+  const [tripStatus, setTripStatus] = useState<TripStatus>({ current_day: null });
   const [selectedDay, setSelectedDay] = useState<number | ''>('');
   const [savingStatus, setSavingStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -97,6 +99,10 @@ export default function AdminDashboardClient() {
         saving: false,
         savingStrava: false,
         stravaMessage: '',
+        livetrackUrl: '',
+        livetrackUpdatedAt: null,
+        savingLivetrack: false,
+        livetrackMessage: '',
         uploading: false,
         uploadError: '',
         photos: [],
@@ -168,7 +174,6 @@ export default function AdminDashboardClient() {
       const r = await fetch('/api/trip-status');
       const data = await r.json();
       setTripStatus(data);
-      setGarminUrl(data.garmin_livetrack_url || '');
       setSelectedDay(data.current_day || '');
     } catch (err) {
       console.error('Failed to fetch trip status:', err);
@@ -184,7 +189,6 @@ export default function AdminDashboardClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           current_day: selectedDay === '' ? null : Number(selectedDay),
-          garmin_livetrack_url: garminUrl || null,
         }),
       });
       if (r.ok) {
@@ -224,6 +228,8 @@ export default function AdminDashboardClient() {
           ...prev[dayId],
           diary: diaryData?.content || '',
           stravaId: dayData?.strava_activity_id ? String(dayData.strava_activity_id) : '',
+          livetrackUrl: dayData?.garmin_livetrack_url || '',
+          livetrackUpdatedAt: dayData?.garmin_livetrack_updated_at || null,
           photos: Array.isArray(photosData) ? photosData : [],
           comments: Array.isArray(commentsData) ? commentsData : [],
         },
@@ -371,6 +377,49 @@ export default function AdminDashboardClient() {
       setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], stravaMessage: `Error: ${err.message}` } }));
     } finally {
       setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingStrava: false } }));
+    }
+  }
+
+  async function handleSaveLivetrack(dayId: number) {
+    const section = daySections[dayId];
+    if (!section) return;
+    setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingLivetrack: true, livetrackMessage: '' } }));
+    try {
+      const r = await fetch('/api/trip-status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dayId, garmin_livetrack_url: section.livetrackUrl || null }),
+      });
+      if (!r.ok) {
+        const data = await r.json();
+        throw new Error(data.error || 'Failed');
+      }
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], livetrackMessage: '✓ Saved' } }));
+    } catch (err: any) {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], livetrackMessage: `Error: ${err.message}` } }));
+    } finally {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingLivetrack: false } }));
+    }
+  }
+
+  async function handleClearLivetrack(dayId: number) {
+    if (!confirm('Clear the LiveTrack URL for this day? The "Watch Them Live" button will disappear from the site immediately.')) return;
+    setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingLivetrack: true, livetrackMessage: '' } }));
+    try {
+      const r = await fetch('/api/trip-status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dayId, garmin_livetrack_url: null }),
+      });
+      if (!r.ok) {
+        const data = await r.json();
+        throw new Error(data.error || 'Failed');
+      }
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], livetrackUrl: '', livetrackUpdatedAt: null, livetrackMessage: '✓ Cleared' } }));
+    } catch (err: any) {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], livetrackMessage: `Error: ${err.message}` } }));
+    } finally {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingLivetrack: false } }));
     }
   }
 
@@ -530,73 +579,25 @@ export default function AdminDashboardClient() {
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Current Active Day
+                <span className="text-slate-600 font-normal ml-2">
+                  (only needed if the trip is running ahead/behind the fixed schedule)
+                </span>
               </label>
               <select
                 value={selectedDay}
                 onChange={(e) => setSelectedDay(e.target.value === '' ? '' : Number(e.target.value))}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-highland-purple text-sm"
               >
-                <option value="">— No active day (pre/post trip)</option>
+                <option value="">— No override (use today's calendar date)</option>
                 {DAYS_DATA.map((day) => (
                   <option key={day.id} value={day.id}>
                     Day {day.id} — {day.from_location} → {day.to_location} ({day.date})
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Garmin LiveTrack URL
-                <span className="text-slate-600 font-normal ml-2">
-                  (set manually or via Zapier webhook)
-                </span>
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={garminUrl}
-                  onChange={(e) => setGarminUrl(e.target.value)}
-                  placeholder="https://livetrack.garmin.com/session/..."
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple text-sm"
-                />
-                {garminUrl && (
-                  <button
-                    type="button"
-                    disabled={savingStatus}
-                    onClick={async () => {
-                      if (!confirm('Remove the LiveTrack URL? The "Watch Pete Live" button will disappear from the site immediately.')) return;
-                      setGarminUrl('');
-                      setSavingStatus(true);
-                      setStatusMessage('');
-                      try {
-                        const r = await fetch('/api/trip-status', {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            current_day: selectedDay === '' ? null : Number(selectedDay),
-                            garmin_livetrack_url: null,
-                          }),
-                        });
-                        if (r.ok) {
-                          setStatusMessage('LiveTrack URL removed');
-                          await fetchTripStatus();
-                          setTimeout(() => setStatusMessage(''), 3000);
-                        }
-                      } catch {
-                        setStatusMessage('Error removing URL');
-                      } finally {
-                        setSavingStatus(false);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-slate-200 px-3 py-2 rounded-xl text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
-                    title="Remove LiveTrack URL"
-                  >
-                    <X className="w-4 h-4" />
-                    Clear
-                  </button>
-                )}
-              </div>
+              <p className="text-slate-600 text-xs mt-2">
+                Each day's LiveTrack link and Strava activity are now managed automatically, per day, in Day Management below — no manual paste/clear needed here.
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -861,7 +862,7 @@ export default function AdminDashboardClient() {
                 <h3 className="text-slate-200 font-medium text-sm">Garmin LiveTrack Auto-Post</h3>
               </div>
               <p className="text-slate-500 text-xs leading-relaxed">
-                When you start an activity with LiveTrack enabled, Garmin emails you the LiveTrack link. Zapier (free) watches for that email and posts the URL to your site automatically.
+                When you start an activity with LiveTrack enabled, Garmin emails you the LiveTrack link. Zapier (free) watches for that email and posts the URL to your site automatically — attributed to whichever day's date matches today (or the Current Active Day override above), so finishing one day and starting the next never needs a manual clear or re-paste.
               </p>
 
               <details className="group">
@@ -897,7 +898,7 @@ export default function AdminDashboardClient() {
                   Manual fallback (iOS Shortcut) ›
                 </summary>
                 <div className="mt-3 rounded-xl bg-slate-900/60 border border-slate-800 p-4 space-y-2 text-xs text-slate-400">
-                  <p>If Zapier isn't set up, you can paste the LiveTrack URL directly into the <strong className="text-slate-300">Garmin LiveTrack URL</strong> field in the Trip Status section above — just copy it from the Garmin Connect app when your activity starts.</p>
+                  <p>If Zapier isn't set up, you can paste the LiveTrack URL directly into that day's <strong className="text-slate-300">Garmin LiveTrack URL</strong> field in Day Management below — just copy it from the Garmin Connect app when your activity starts.</p>
                   <p className="text-slate-500">The LiveTrack URL looks like: <code className="bg-slate-800 px-1 rounded">https://livetrack.garmin.com/session/...</code></p>
                 </div>
               </details>
@@ -1138,6 +1139,56 @@ export default function AdminDashboardClient() {
                         )}
                         <p className="text-slate-600 text-xs mt-1">
                           Paste a numeric ID, strava.com/activities/… URL, or strava.app.link share link — resolved automatically on save.
+                        </p>
+                      </div>
+
+                      {/* Garmin LiveTrack URL */}
+                      <div>
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
+                          <Navigation className="w-4 h-4 text-blue-400" />
+                          Garmin LiveTrack URL
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={section.livetrackUrl}
+                            onChange={(e) =>
+                              setDaySections((prev) => ({
+                                ...prev,
+                                [day.id]: { ...prev[day.id], livetrackUrl: e.target.value },
+                              }))
+                            }
+                            placeholder="https://livetrack.garmin.com/session/..."
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
+                          />
+                          <button
+                            type="button"
+                            disabled={section.savingLivetrack}
+                            onClick={() => handleSaveLivetrack(day.id)}
+                            className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400 px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {section.savingLivetrack ? 'Saving…' : 'Save'}
+                          </button>
+                          {section.livetrackUrl && (
+                            <button
+                              type="button"
+                              disabled={section.savingLivetrack}
+                              onClick={() => handleClearLivetrack(day.id)}
+                              title="Clear the LiveTrack URL for this day"
+                              className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        {section.livetrackMessage && (
+                          <p className={`text-xs mt-1 ${section.livetrackMessage.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}`}>
+                            {section.livetrackMessage}
+                          </p>
+                        )}
+                        <p className="text-slate-600 text-xs mt-1">
+                          Set automatically via Zapier when you start a Garmin activity, and cleared automatically once the finished ride syncs to Strava. Only touch this manually as a fallback.
                         </p>
                       </div>
 

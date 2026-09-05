@@ -5,17 +5,17 @@ import { createServiceClient, createSafeClient } from '@/lib/supabase';
 export async function GET() {
   const supabase = createSafeClient();
   if (!supabase) {
-    return NextResponse.json({ current_day: null, garmin_livetrack_url: null });
+    return NextResponse.json({ current_day: null });
   }
 
   const { data, error } = await supabase
     .from('trip_status')
-    .select('*')
+    .select('current_day, current_lat, current_lng, location_updated_at, updated_at')
     .eq('id', 1)
     .single();
 
   if (error) {
-    return NextResponse.json({ current_day: null, garmin_livetrack_url: null });
+    return NextResponse.json({ current_day: null });
   }
 
   return NextResponse.json(data);
@@ -78,13 +78,31 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: true, resolved_id: activityId });
     }
 
+    // Handle day-specific LiveTrack URL update (manual override/fallback —
+    // normally this is set automatically per-day by the Garmin webhook)
+    if (body.dayId && body.garmin_livetrack_url !== undefined) {
+      const url: string | null = body.garmin_livetrack_url || null;
+
+      const { error } = await supabase
+        .from('days')
+        .update({
+          garmin_livetrack_url: url,
+          garmin_livetrack_updated_at: url ? new Date().toISOString() : null,
+        })
+        .eq('id', body.dayId);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
     // Handle trip status update
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
     };
 
     if ('current_day' in body) updates.current_day = body.current_day;
-    if ('garmin_livetrack_url' in body) updates.garmin_livetrack_url = body.garmin_livetrack_url;
 
     const { data, error } = await supabase
       .from('trip_status')

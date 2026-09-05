@@ -8,6 +8,8 @@ export interface DayData {
   elevation_m: number;
   route_url: string;
   strava_activity_id?: string | null;
+  garmin_livetrack_url?: string | null;
+  garmin_livetrack_updated_at?: string | null;
   accommodation_name: string;
   accommodation_url?: string | null;
   accommodation_booking_ref?: string | null;
@@ -59,7 +61,6 @@ export interface Comment {
 export interface TripStatus {
   id: number;
   current_day: number | null;
-  garmin_livetrack_url: string | null;
   updated_at: string;
 }
 

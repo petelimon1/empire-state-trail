@@ -3,7 +3,7 @@ import { Mountain, MapPin, Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import DayCard from '@/components/DayCard';
 import RouteMapDynamic from '@/components/RouteMapDynamic';
-import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS, PRE_RIDE_DAY } from '@/lib/tripData';
+import { DAYS_DATA, TRIP_START_DATE, TRIP_END_DATE, TRIP_TIMEZONE, TRIP_STATS, PRE_RIDE_DAY, resolveActiveDayId } from '@/lib/tripData';
 import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
@@ -19,16 +19,36 @@ export const revalidate = 60;
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null, garmin_livetrack_url: null, updated_at: null };
+  if (!supabase) return { current_day: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day, garmin_livetrack_url, updated_at')
+      .select('current_day')
       .eq('id', 1)
       .single();
-    return data || { current_day: null, garmin_livetrack_url: null, updated_at: null };
+    return data || { current_day: null };
   } catch {
-    return { current_day: null, garmin_livetrack_url: null, updated_at: null };
+    return { current_day: null };
+  }
+}
+
+// LiveTrack now lives on the active day's own row, not on trip_status.
+async function getActiveDayLiveTrack(dayId: number | null): Promise<{ garmin_livetrack_url: string | null; garmin_livetrack_updated_at: string | null }> {
+  if (!dayId) return { garmin_livetrack_url: null, garmin_livetrack_updated_at: null };
+  const supabase = createSafeClient();
+  if (!supabase) return { garmin_livetrack_url: null, garmin_livetrack_updated_at: null };
+  try {
+    const { data } = await supabase
+      .from('days')
+      .select('garmin_livetrack_url, garmin_livetrack_updated_at')
+      .eq('id', dayId)
+      .single();
+    return {
+      garmin_livetrack_url: data?.garmin_livetrack_url ?? null,
+      garmin_livetrack_updated_at: data?.garmin_livetrack_updated_at ?? null,
+    };
+  } catch {
+    return { garmin_livetrack_url: null, garmin_livetrack_updated_at: null };
   }
 }
 
@@ -92,6 +112,13 @@ export default async function HomePage() {
     getPostHikeDiaryEntries(),
   ]);
 
+  // An admin current_day override (trip running off the fixed schedule) can
+  // point "currently riding" at a different day than the date match above.
+  const resolvedActiveDayId = tripInfo.phase === 'during'
+    ? resolveActiveDayId(tripStatus.current_day)
+    : null;
+  const activeDayLiveTrack = await getActiveDayLiveTrack(resolvedActiveDayId);
+
   const completedDays = Object.values(dayStatuses).filter((s) => s === 'completed').length;
   const progressPercent = Math.round((completedDays / DAYS_DATA.length) * 100);
 
@@ -122,7 +149,7 @@ export default async function HomePage() {
 
           {/* Status Banner */}
           <div className="mt-10">
-            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={tripInfo.activeDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={tripStatus?.garmin_livetrack_url} garminUpdatedAt={tripStatus?.updated_at} completedDays={completedDays} />
+            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={resolvedActiveDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={activeDayLiveTrack.garmin_livetrack_url} garminUpdatedAt={activeDayLiveTrack.garmin_livetrack_updated_at} completedDays={completedDays} />
           </div>
 
           {/* Stats */}
@@ -176,7 +203,7 @@ export default async function HomePage() {
       <div className="relative bg-slate-950">
         <RouteMapDynamic
           height="560px"
-          currentDayId={tripInfo.activeDayId}
+          currentDayId={resolvedActiveDayId}
           dayStatuses={dayStatuses}
         />
       </div>

@@ -47,31 +47,41 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null, garmin_livetrack_url: null, updated_at: null };
+  if (!supabase) return { current_day: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day, garmin_livetrack_url, updated_at')
+      .select('current_day')
       .eq('id', 1)
       .single();
-    return data || { current_day: null, garmin_livetrack_url: null, updated_at: null };
+    return data || { current_day: null };
   } catch {
-    return { current_day: null, garmin_livetrack_url: null, updated_at: null };
+    return { current_day: null };
   }
 }
 
-async function getStravaActivityId(dayId: number): Promise<string | null> {
+// LiveTrack now lives on the day's own row, not on trip_status, so this
+// pulls the Strava link and the LiveTrack fields together in one query.
+async function getDayLiveState(dayId: number): Promise<{
+  stravaActivityId: string | null;
+  garminLivetrackUrl: string | null;
+  garminLivetrackUpdatedAt: string | null;
+}> {
   const supabase = createSafeClient();
-  if (!supabase) return null;
+  if (!supabase) return { stravaActivityId: null, garminLivetrackUrl: null, garminLivetrackUpdatedAt: null };
   try {
     const { data } = await supabase
       .from('days')
-      .select('strava_activity_id')
+      .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at')
       .eq('id', dayId)
       .single();
-    return data?.strava_activity_id ? String(data.strava_activity_id) : null;
+    return {
+      stravaActivityId: data?.strava_activity_id ? String(data.strava_activity_id) : null,
+      garminLivetrackUrl: data?.garmin_livetrack_url ?? null,
+      garminLivetrackUpdatedAt: data?.garmin_livetrack_updated_at ?? null,
+    };
   } catch {
-    return null;
+    return { stravaActivityId: null, garminLivetrackUrl: null, garminLivetrackUpdatedAt: null };
   }
 }
 
@@ -146,13 +156,14 @@ export default async function DayPage({ params }: PageProps) {
   const nextDay = DAYS_DATA.find((d) => d.id === dayId + 1);
   const status = getDayStatus(day);
 
-  const [tripStatus, stravaActivityId, heroPhoto, dayTimes, isAdmin] = await Promise.all([
+  const [tripStatus, dayLiveState, heroPhoto, dayTimes, isAdmin] = await Promise.all([
     getTripStatus(),
-    getStravaActivityId(dayId),
+    getDayLiveState(dayId),
     getFirstPhoto(dayId),
     getDayTimes(dayId),
     getAdminSession(),
   ]);
+  const { stravaActivityId, garminLivetrackUrl, garminLivetrackUpdatedAt } = dayLiveState;
 
   // isToday: either the calendar date matches, OR admin has manually set current_day to this day
   const isToday = status === 'active' || tripStatus?.current_day === dayId;
@@ -241,10 +252,10 @@ export default async function DayPage({ params }: PageProps) {
                   </span>
                 </h1>
 
-                {isToday && tripStatus?.garmin_livetrack_url && (
+                {isToday && garminLivetrackUrl && (
                   <div className="flex-shrink-0 flex flex-col items-end gap-1">
                     <a
-                      href={tripStatus.garmin_livetrack_url}
+                      href={garminLivetrackUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-4 py-2 rounded-xl transition-colors text-sm shadow-lg shadow-amber-500/20"
@@ -254,7 +265,7 @@ export default async function DayPage({ params }: PageProps) {
                       <span className="sm:hidden">Live</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
-                    <LiveTrackFreshness updatedAt={tripStatus?.updated_at} />
+                    <LiveTrackFreshness updatedAt={garminLivetrackUpdatedAt} />
                   </div>
                 )}
               </div>
@@ -302,8 +313,8 @@ export default async function DayPage({ params }: PageProps) {
               stravaActivityId={stravaActivityId}
               isToday={isToday}
               isAdmin={isAdmin}
-              garminLivetrackUrl={tripStatus?.garmin_livetrack_url ?? null}
-              garminLivetrackUpdatedAt={tripStatus?.updated_at ?? null}
+              garminLivetrackUrl={garminLivetrackUrl}
+              garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
               departureTime={dayTimes.departure_time}
               arrivalTime={dayTimes.arrival_time}
               elevationProfile={getElevationProfile(dayId)}

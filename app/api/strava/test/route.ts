@@ -65,6 +65,13 @@ export async function POST(request: NextRequest) {
       if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
+    // Mirror the real Strava webhook: an activity landing on a day means
+    // that day's LiveTrack session is done.
+    await supabase
+      .from('days')
+      .update({ garmin_livetrack_url: null, garmin_livetrack_updated_at: null })
+      .eq('id', saveId);
+
     return NextResponse.json({ success: true, savedToDay: saveId, activity });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed' }, { status: 500 });

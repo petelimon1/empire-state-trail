@@ -76,11 +76,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Activity is done — clear the LiveTrack URL so the button disappears
+    // Activity is done — clear this day's own LiveTrack URL so the button
+    // disappears (scoped to this day only, so it doesn't affect any other
+    // day's in-progress LiveTrack session).
     await supabase
-      .from('trip_status')
-      .update({ garmin_livetrack_url: null })
-      .neq('id', 0);
+      .from('days')
+      .update({ garmin_livetrack_url: null, garmin_livetrack_updated_at: null })
+      .eq('id', saveId);
 
     if (day) {
       console.log(`✅ Strava webhook: auto-linked activity ${activityId} to Day ${day.id} (${activityDate})`);

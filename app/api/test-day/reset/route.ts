@@ -11,10 +11,10 @@ export async function POST() {
   const supabase = createServiceClient();
   const errors: string[] = [];
 
-  // Clear strava_activity_id from day 99
+  // Clear strava_activity_id and LiveTrack fields from day 99
   const { error: dayError } = await supabase
     .from('days')
-    .update({ strava_activity_id: null })
+    .update({ strava_activity_id: null, garmin_livetrack_url: null, garmin_livetrack_updated_at: null })
     .eq('id', 99);
   if (dayError) errors.push(`days: ${dayError.message}`);
 
@@ -31,13 +31,6 @@ export async function POST() {
     .delete()
     .eq('day_id', 99);
   if (photosError) errors.push(`photos: ${photosError.message}`);
-
-  // Clear LiveTrack URL from trip_status (leave current_day untouched)
-  const { error: statusError } = await supabase
-    .from('trip_status')
-    .update({ garmin_livetrack_url: null })
-    .neq('id', 0); // update all rows
-  if (statusError) errors.push(`trip_status: ${statusError.message}`);
 
   if (errors.length > 0) {
     return NextResponse.json({ error: errors.join('; ') }, { status: 500 });

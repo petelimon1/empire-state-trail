@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { resolveActiveDayId } from '@/lib/tripData';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,20 +39,54 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceClient();
 
-    const { error } = await supabase
+    // LiveTrack is stored per-day (days.garmin_livetrack_url), not globally,
+    // so finishing one day and starting the next never requires a manual
+    // clear/re-paste. Attribute this ping to whichever day is "current" —
+    // an admin override if the trip is running off the fixed schedule,
+    // otherwise whichever day's date matches today — falling back to the
+    // test slot (99) if neither resolves.
+    const { data: tripStatus } = await supabase
       .from('trip_status')
+      .select('current_day')
+      .eq('id', 1)
+      .single();
+    const dayId = resolveActiveDayId(tripStatus?.current_day) ?? 99;
+
+    const { data: updated, error } = await supabase
+      .from('days')
       .update({
         garmin_livetrack_url: livetackUrl,
-        updated_at: new Date().toISOString(),
+        garmin_livetrack_updated_at: new Date().toISOString(),
       })
-      .eq('id', 1);
+      .eq('id', dayId)
+      .select('id');
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log('Garmin LiveTrack URL updated via webhook:', livetackUrl);
-    return NextResponse.json({ success: true, url: livetackUrl });
+    // Test slot row may not exist yet — insert it with required fields.
+    if (!updated || updated.length === 0) {
+      const { error: insertError } = await supabase
+        .from('days')
+        .insert({
+          id: dayId,
+          date: '2099-01-01',
+          title: 'Test Activity',
+          from_location: 'Test',
+          to_location: 'Test',
+          distance_km: 0,
+          elevation_m: 0,
+          garmin_livetrack_url: livetackUrl,
+          garmin_livetrack_updated_at: new Date().toISOString(),
+        });
+      if (insertError) {
+        return NextResponse.json({ error: insertError.message }, { status: 500 });
+      }
+    }
+
+    console.log(`Garmin LiveTrack URL updated via webhook for day ${dayId}:`, livetackUrl);
+    return NextResponse.json({ success: true, dayId, url: livetackUrl });
   } catch (err: any) {
     console.error('Garmin webhook error:', err);
     return NextResponse.json({ error: err.message || 'Webhook failed' }, { status: 500 });

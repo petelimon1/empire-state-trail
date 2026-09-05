@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient, createSafeClient } from '@/lib/supabase';
 import { getAdminSession } from '@/lib/auth';
+import { resolveActiveDayId } from '@/lib/tripData';
 
 // Try to extract current coordinates from a Garmin LiveTrack KML feed
 async function fetchGarminCoords(livetackUrl: string): Promise<{ lat: number; lng: number; source: 'garmin' } | null> {
@@ -44,7 +45,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from('trip_status')
-    .select('garmin_livetrack_url, current_lat, current_lng, location_updated_at')
+    .select('current_day, current_lat, current_lng, location_updated_at')
     .eq('id', 1)
     .single();
 
@@ -52,9 +53,15 @@ export async function GET() {
     return NextResponse.json({ lat: null, lng: null, source: null }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
+  // LiveTrack URL lives on whichever day is currently active, not on trip_status.
+  const activeDayId = resolveActiveDayId(data.current_day);
+  const { data: activeDay } = activeDayId
+    ? await supabase.from('days').select('garmin_livetrack_url').eq('id', activeDayId).single()
+    : { data: null };
+
   // Try Garmin KML first if we have a live URL
-  if (data.garmin_livetrack_url) {
-    const garminCoords = await fetchGarminCoords(data.garmin_livetrack_url);
+  if (activeDay?.garmin_livetrack_url) {
+    const garminCoords = await fetchGarminCoords(activeDay.garmin_livetrack_url);
     if (garminCoords) {
       // Also store the fetched coords so other consumers can use them
       const svc = createServiceClient();

@@ -1,7 +1,7 @@
 import { DayData } from '@/types';
 
 // Get date string 'YYYY-MM-DD' in a given timezone using native Intl API
-function getDateInTZ(date: Date, tz: string): string {
+export function getDateInTZ(date: Date, tz: string): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: tz,
     year: 'numeric',
@@ -273,4 +273,14 @@ export function getDaysUntilTrip(currentDate: Date): number {
   const tripStart = new Date(TRIP_START_DATE + 'T00:00:00Z');
   const today = new Date(getDateInTZ(currentDate, TRIP_TIMEZONE) + 'T00:00:00Z');
   return Math.round((tripStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// Which day should a LiveTrack ping or location poll be attributed to right
+// now. An admin-set current_day override (for when the trip is running
+// ahead/behind the fixed schedule) always wins over the calendar date; with
+// no override, fall back to whichever day's date matches today.
+export function resolveActiveDayId(currentDayOverride: number | null | undefined, now: Date = new Date()): number | null {
+  if (currentDayOverride != null) return currentDayOverride;
+  const today = getDateInTZ(now, TRIP_TIMEZONE);
+  return DAYS_DATA.find((d) => d.date === today)?.id ?? null;
 }

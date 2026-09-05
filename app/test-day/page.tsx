@@ -10,21 +10,23 @@ export const revalidate = 0;
 
 async function getData() {
   const supabase = createSafeClient();
-  if (!supabase) return { livetrackUrl: null, stravaActivityId: null };
+  if (!supabase) return { livetrackUrl: null, livetrackUpdatedAt: null, stravaActivityId: null };
 
-  const [statusRes, dayRes] = await Promise.all([
-    supabase.from('trip_status').select('garmin_livetrack_url').eq('id', 1).single(),
-    supabase.from('days').select('strava_activity_id').eq('id', 99).single(),
-  ]);
+  const { data } = await supabase
+    .from('days')
+    .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at')
+    .eq('id', 99)
+    .single();
 
   return {
-    livetrackUrl: statusRes.data?.garmin_livetrack_url ?? null,
-    stravaActivityId: dayRes.data?.strava_activity_id ?? null,
+    livetrackUrl: data?.garmin_livetrack_url ?? null,
+    livetrackUpdatedAt: data?.garmin_livetrack_updated_at ?? null,
+    stravaActivityId: data?.strava_activity_id ?? null,
   };
 }
 
 export default async function TestDayPage() {
-  const { livetrackUrl, stravaActivityId } = await getData();
+  const { livetrackUrl, livetrackUpdatedAt, stravaActivityId } = await getData();
 
   const checklist = [
     {
@@ -111,6 +113,7 @@ export default async function TestDayPage() {
               activityId={stravaActivityId}
               isToday={true}
               garminLivetrackUrl={livetrackUrl}
+              garminLivetrackUpdatedAt={livetrackUpdatedAt}
               routeUrl="https://www.strava.com/routes"
             />
 
