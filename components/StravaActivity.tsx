@@ -56,7 +56,37 @@ export default function StravaActivity({
     );
   }
 
-  // Completed with Strava activity — show this first, regardless of isToday
+  // Live track currently active — this always means the day isn't over yet,
+  // even if a Strava activity is already attached (e.g. a paused/resumed
+  // recording synced an earlier segment as "completed" while the ride continues).
+  if (isToday && garminLivetrackUrl) {
+    return (
+      <div className="glass-card rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <h3 className="font-semibold text-slate-200">Activity In Progress</h3>
+        </div>
+        <p className="text-slate-400 text-sm mb-4">
+          Pete &amp; Lena are riding right now! Watch the live track to follow along.
+        </p>
+        <a
+          href={garminLivetrackUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
+        >
+          <Zap className="w-4 h-4" />
+          Watch Them Live — Garmin LiveTrack
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+        <div className="flex justify-center mt-2">
+          <LiveTrackFreshness updatedAt={garminLivetrackUpdatedAt} />
+        </div>
+      </div>
+    );
+  }
+
+  // Completed with Strava activity
   if (activity) {
     const pace = formatPaceFromMps(activity.average_speed, unit);
     const movingTime = formatDuration(activity.moving_time);
@@ -119,34 +149,6 @@ export default function StravaActivity({
           <h3 className="font-semibold text-slate-200">Strava</h3>
         </div>
         <p className="text-red-400 text-sm">{error}</p>
-      </div>
-    );
-  }
-
-  // Today and live tracking active
-  if (isToday && garminLivetrackUrl) {
-    return (
-      <div className="glass-card rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <h3 className="font-semibold text-slate-200">Activity In Progress</h3>
-        </div>
-        <p className="text-slate-400 text-sm mb-4">
-          Pete &amp; Lena are riding right now! Watch the live track to follow along.
-        </p>
-        <a
-          href={garminLivetrackUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
-        >
-          <Zap className="w-4 h-4" />
-          Watch Them Live — Garmin LiveTrack
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-        <div className="flex justify-center mt-2">
-          <LiveTrackFreshness updatedAt={garminLivetrackUpdatedAt} />
-        </div>
       </div>
     );
   }
