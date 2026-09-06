@@ -258,12 +258,6 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
                     </a>
                   )}
                 </div>
-                {day.accommodation_booking_ref && (
-                  <div className="text-slate-500 text-xs mt-1">Ref: {day.accommodation_booking_ref}</div>
-                )}
-                {day.accommodation_notes && (
-                  <div className="text-slate-500 text-xs mt-1.5 leading-relaxed">{day.accommodation_notes}</div>
-                )}
               </div>
             </div>
           </div>

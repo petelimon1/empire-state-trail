@@ -254,7 +254,6 @@ export default async function HomePage() {
                 <div className="text-slate-400 font-medium mb-1">{PRE_RIDE_DAY.label} — {PRE_RIDE_DAY.title}</div>
                 <div className="space-y-0.5 pl-3 border-l border-slate-700/60">
                   <div className="text-slate-400">{PRE_RIDE_DAY.accommodation_name}</div>
-                  <div className="text-slate-500 text-xs">{PRE_RIDE_DAY.accommodation_notes}</div>
                 </div>
               </div>
             </div>
