@@ -249,10 +249,13 @@ export const POST_HIKE_DAYS = [
   { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Rental car pickup 9am, drive back to Brooklyn' },
 ];
 
+// Derived from DAYS_DATA rather than hardcoded, so correcting one day's
+// distance/elevation (e.g. to match its actual Strava route) can't leave
+// the trip-wide total out of sync with the days it's supposed to sum.
 export const TRIP_STATS = {
-  totalDistance: 564.5,
-  totalElevation: 4126,
-  totalDays: 7,
+  totalDistance: Math.round(DAYS_DATA.reduce((sum, d) => sum + d.distance_km, 0) * 10) / 10,
+  totalElevation: DAYS_DATA.reduce((sum, d) => sum + d.elevation_m, 0),
+  totalDays: DAYS_DATA.length,
 };
 
 export function getDayStatus(dayDate: string, currentDate: Date, tz: string = TRIP_TIMEZONE): 'upcoming' | 'active' | 'completed' {
