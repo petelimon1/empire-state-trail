@@ -334,8 +334,8 @@ export default async function DayPage({ params }: PageProps) {
           {/* Right column - Itinerary details */}
           <div className="space-y-5">
 
-            {/* Day itinerary card */}
-            <div className="glass-card rounded-xl overflow-hidden">
+            {/* Day itinerary card — desktop only, the Info tab covers this on mobile */}
+            <div className="hidden lg:block glass-card rounded-xl overflow-hidden">
               <div className="bg-highland-purple/10 border-b border-highland-purple/20 px-5 py-3">
                 <h3 className="font-display font-semibold text-slate-200">Day Itinerary</h3>
               </div>
