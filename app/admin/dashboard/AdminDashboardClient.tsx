@@ -647,7 +647,7 @@ export default function AdminDashboardClient() {
                 ))}
               </select>
               <p className="text-slate-600 text-xs mt-2">
-                Each day's LiveTrack link and Strava activity are now managed automatically, per day, in Day Management below — no manual paste/clear needed here.
+                Each day's LiveTrack link and Strava activity are now managed automatically, per day, in Day Management below — no manual paste/clear needed here. This override only applies for today — it resets automatically each day, so you'll need to re-set it if the schedule is still off tomorrow.
               </p>
             </div>
 

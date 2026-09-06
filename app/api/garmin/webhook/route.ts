@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
     // test slot (99) if neither resolves.
     const { data: tripStatus } = await supabase
       .from('trip_status')
-      .select('current_day')
+      .select('current_day, current_day_set_date')
       .eq('id', 1)
       .single();
-    const dayId = resolveActiveDayId(tripStatus?.current_day) ?? 99;
+    const dayId = resolveActiveDayId(tripStatus?.current_day, tripStatus?.current_day_set_date) ?? 99;
 
     const { data: updated, error } = await supabase
       .from('days')

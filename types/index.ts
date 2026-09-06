@@ -62,6 +62,7 @@ export interface Comment {
 export interface TripStatus {
   id: number;
   current_day: number | null;
+  current_day_set_date: string | null;
   updated_at: string;
 }
 

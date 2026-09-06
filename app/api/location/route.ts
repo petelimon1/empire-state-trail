@@ -45,7 +45,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from('trip_status')
-    .select('current_day, current_lat, current_lng, location_updated_at')
+    .select('current_day, current_day_set_date, current_lat, current_lng, location_updated_at')
     .eq('id', 1)
     .single();
 
@@ -54,7 +54,7 @@ export async function GET() {
   }
 
   // LiveTrack URL lives on whichever day is currently active, not on trip_status.
-  const activeDayId = resolveActiveDayId(data.current_day);
+  const activeDayId = resolveActiveDayId(data.current_day, data.current_day_set_date);
   const { data: activeDay } = activeDayId
     ? await supabase.from('days').select('garmin_livetrack_url').eq('id', activeDayId).single()
     : { data: null };

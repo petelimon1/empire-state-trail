@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/auth';
 import { createServiceClient, createSafeClient } from '@/lib/supabase';
 import { parseVideoUrl } from '@/lib/videoEmbed';
+import { getDateInTZ, TRIP_TIMEZONE } from '@/lib/tripData';
 
 export async function GET() {
   const supabase = createSafeClient();
@@ -11,7 +12,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('trip_status')
-    .select('current_day, current_lat, current_lng, location_updated_at, updated_at')
+    .select('current_day, current_day_set_date, current_lat, current_lng, location_updated_at, updated_at')
     .eq('id', 1)
     .single();
 
@@ -121,7 +122,11 @@ export async function PATCH(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    if ('current_day' in body) updates.current_day = body.current_day;
+    if ('current_day' in body) {
+      updates.current_day = body.current_day;
+      // The override only applies on the day it was saved — see resolveActiveDayId.
+      updates.current_day_set_date = body.current_day != null ? getDateInTZ(new Date(), TRIP_TIMEZONE) : null;
+    }
 
     const { data, error } = await supabase
       .from('trip_status')

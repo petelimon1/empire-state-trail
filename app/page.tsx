@@ -19,16 +19,16 @@ export const revalidate = 60;
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null };
+  if (!supabase) return { current_day: null, current_day_set_date: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day')
+      .select('current_day, current_day_set_date')
       .eq('id', 1)
       .single();
-    return data || { current_day: null };
+    return data || { current_day: null, current_day_set_date: null };
   } catch {
-    return { current_day: null };
+    return { current_day: null, current_day_set_date: null };
   }
 }
 
@@ -115,7 +115,7 @@ export default async function HomePage() {
   // An admin current_day override (trip running off the fixed schedule) can
   // point "currently riding" at a different day than the date match above.
   const resolvedActiveDayId = tripInfo.phase === 'during'
-    ? resolveActiveDayId(tripStatus.current_day)
+    ? resolveActiveDayId(tripStatus.current_day, tripStatus.current_day_set_date)
     : null;
   const activeDayLiveTrack = await getActiveDayLiveTrack(resolvedActiveDayId);
 

@@ -279,8 +279,18 @@ export function getDaysUntilTrip(currentDate: Date): number {
 // now. An admin-set current_day override (for when the trip is running
 // ahead/behind the fixed schedule) always wins over the calendar date; with
 // no override, fall back to whichever day's date matches today.
-export function resolveActiveDayId(currentDayOverride: number | null | undefined, now: Date = new Date()): number | null {
-  if (currentDayOverride != null) return currentDayOverride;
+// currentDaySetDate is the date (TRIP_TIMEZONE) the override was saved on —
+// the override only applies on that same day, so a forgotten override left
+// over from a previous day can't silently pin the site to the wrong day
+// forever. On any other day, the calendar date alone decides.
+export function resolveActiveDayId(
+  currentDayOverride: number | null | undefined,
+  currentDaySetDate: string | null | undefined,
+  now: Date = new Date()
+): number | null {
   const today = getDateInTZ(now, TRIP_TIMEZONE);
+  if (currentDayOverride != null && currentDaySetDate === today) {
+    return currentDayOverride;
+  }
   return DAYS_DATA.find((d) => d.date === today)?.id ?? null;
 }

@@ -89,6 +89,7 @@ CREATE POLICY "Auth users insert comments" ON comments FOR INSERT WITH CHECK (au
 CREATE TABLE IF NOT EXISTS trip_status (
   id INTEGER PRIMARY KEY DEFAULT 1,
   current_day INTEGER REFERENCES days(id),
+  current_day_set_date DATE, -- the (TRIP_TIMEZONE) date current_day was saved on; the override only applies on that same day, so a forgotten override can't silently persist
   garmin_livetrack_url TEXT, -- deprecated: LiveTrack is now stored per-day on days.garmin_livetrack_url; this column is no longer read or written
   current_lat DECIMAL(9,6),
   current_lng DECIMAL(9,6),
@@ -98,6 +99,10 @@ CREATE TABLE IF NOT EXISTS trip_status (
 
 ALTER TABLE trip_status ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read trip status" ON trip_status FOR SELECT USING (true);
+
+-- Migration for existing databases (CREATE TABLE IF NOT EXISTS above is a
+-- no-op once the table exists).
+ALTER TABLE trip_status ADD COLUMN IF NOT EXISTS current_day_set_date DATE;
 
 -- Comments need to be added to the realtime publication explicitly — Supabase
 -- doesn't do this automatically for new tables. Without it, posting still

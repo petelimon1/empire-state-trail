@@ -14,7 +14,7 @@ import {
 import Navbar from '@/components/Navbar';
 import DayTabs from '@/components/DayTabs';
 import PageTransition from '@/components/PageTransition';
-import { DAYS_DATA, TRIP_TIMEZONE } from '@/lib/tripData';
+import { DAYS_DATA, TRIP_TIMEZONE, getDateInTZ } from '@/lib/tripData';
 import { DayData, DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 import { getStravaActivity } from '@/lib/strava';
@@ -47,16 +47,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getTripStatus() {
   const supabase = createSafeClient();
-  if (!supabase) return { current_day: null };
+  if (!supabase) return { current_day: null, current_day_set_date: null };
   try {
     const { data } = await supabase
       .from('trip_status')
-      .select('current_day')
+      .select('current_day, current_day_set_date')
       .eq('id', 1)
       .single();
-    return data || { current_day: null };
+    return data || { current_day: null, current_day_set_date: null };
   } catch {
-    return { current_day: null };
+    return { current_day: null, current_day_set_date: null };
   }
 }
 
@@ -168,9 +168,12 @@ export default async function DayPage({ params }: PageProps) {
   ]);
   const { stravaActivityId, garminLivetrackUrl, garminLivetrackUpdatedAt, videoUrl } = dayLiveState;
 
-  // isToday: either the calendar date matches, OR admin has manually set current_day to this day
-  const isToday = status === 'active' || tripStatus?.current_day === dayId;
-  const isCompleted = status === 'completed' && tripStatus?.current_day !== dayId;
+  // isToday: either the calendar date matches, OR admin has manually overridden
+  // current_day to this day — but only for the day that override was set on,
+  // so a forgotten override from a previous day can't keep pinning this.
+  const overrideActive = tripStatus?.current_day_set_date === getDateInTZ(new Date(), TRIP_TIMEZONE);
+  const isToday = status === 'active' || (overrideActive && tripStatus?.current_day === dayId);
+  const isCompleted = status === 'completed' && !(overrideActive && tripStatus?.current_day === dayId);
 
   // Only fetch real Strava stats for completed days (cached for 5 min by Next.js fetch)
   const stravaStats = (isCompleted && stravaActivityId)
