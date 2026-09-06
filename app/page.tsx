@@ -362,8 +362,9 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
     );
   }
 
-  // During trip
-  if (activeDayId) {
+  // During trip, with an active LiveTrack session — the only case that
+  // actually justifies "Currently Riding!"
+  if (activeDayId && garminUrl) {
     const activeDay = DAYS_DATA.find((d) => d.id === activeDayId);
     return (
       <div className="space-y-3">
@@ -376,20 +377,33 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
             Day {activeDayId}: {activeDay?.from_location} → {activeDay?.to_location}
           </div>
         </div>
-        {garminUrl && (
-          <div className="flex items-center gap-3 flex-wrap">
-            <a
-              href={garminUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
-            >
-              <Zap className="w-4 h-4" />
-              Watch Them Live — Garmin LiveTrack
-            </a>
-            <LiveTrackFreshness updatedAt={garminUpdatedAt} />
-          </div>
-        )}
+        <div className="flex items-center gap-3 flex-wrap">
+          <a
+            href={garminUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+          >
+            <Zap className="w-4 h-4" />
+            Watch Them Live — Garmin LiveTrack
+          </a>
+          <LiveTrackFreshness updatedAt={garminUpdatedAt} />
+        </div>
+      </div>
+    );
+  }
+
+  // Today is a riding day, but no LiveTrack session is active right now
+  // (not started yet, or already finished) — say which day it is without
+  // implying anyone's actually on the bike this moment.
+  if (activeDayId) {
+    const activeDay = DAYS_DATA.find((d) => d.id === activeDayId);
+    return (
+      <div className="inline-flex items-center gap-3 glass rounded-2xl px-6 py-3 border border-slate-700/50">
+        <span className="text-slate-200 font-semibold">Today:</span>
+        <span className="text-slate-400 text-sm">
+          Day {activeDayId}: {activeDay?.from_location} → {activeDay?.to_location}
+        </span>
       </div>
     );
   }
