@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/auth';
 
-const CALLBACK_URL = 'https://sensational-otter-7923f5.netlify.app/api/strava/webhook';
+// Netlify injects URL (the site's current primary domain) into every
+// function at runtime, so this self-corrects if the site is ever renamed
+// or a custom domain is added — a hardcoded domain here previously went
+// stale after a site rename and silently broke webhook delivery, since
+// Strava keeps POSTing to whatever URL was registered at subscribe time.
+const CALLBACK_URL = `${process.env.URL || 'https://empire-state-trail-2026.netlify.app'}/api/strava/webhook`;
 
 // GET: check current subscription status
 export async function GET() {
