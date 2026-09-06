@@ -76,13 +76,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Activity is done — clear this day's own LiveTrack URL so the button
-    // disappears (scoped to this day only, so it doesn't affect any other
-    // day's in-progress LiveTrack session).
-    await supabase
-      .from('days')
-      .update({ garmin_livetrack_url: null, garmin_livetrack_updated_at: null })
-      .eq('id', saveId);
+    // Deliberately NOT clearing this day's LiveTrack URL here. A synced
+    // activity doesn't mean the day's riding is over — stopping and
+    // restarting the Garmin recording (e.g. a proper lunch stop) creates a
+    // separate activity that syncs mid-day, and clearing at that point would
+    // show a false "ended" state until the next segment's LiveTrack link is
+    // picked up. The site already prioritizes an active LiveTrack over a
+    // synced activity (see StravaActivity.tsx), and per-day storage means
+    // isToday naturally stops applying once the calendar date rolls over —
+    // so leaving a stale URL in place is harmless and self-limiting to just
+    // the rest of the current day.
 
     if (day) {
       console.log(`✅ Strava webhook: auto-linked activity ${activityId} to Day ${day.id} (${activityDate})`);

@@ -1239,7 +1239,7 @@ export default function AdminDashboardClient() {
                           </p>
                         )}
                         <p className="text-slate-600 text-xs mt-1">
-                          Set automatically via Zapier when you start a Garmin activity, and cleared automatically once the finished ride syncs to Strava. Only touch this manually as a fallback.
+                          Set automatically when you start a Garmin activity. It does NOT auto-clear when the ride syncs to Strava — so pausing and restarting recording (e.g. a lunch stop) never shows a false "ended" state — it just naturally stops mattering once the day is over. Clear it here manually only if you want to mark the day done early.
                         </p>
                       </div>
 
