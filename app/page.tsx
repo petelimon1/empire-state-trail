@@ -52,6 +52,24 @@ async function getActiveDayLiveTrack(dayId: number | null): Promise<{ garmin_liv
   }
 }
 
+// Days with a real Strava activity linked count as completed regardless of
+// the calendar date — otherwise a day that's genuinely done (activity
+// synced, rider back at the hotel) still shows as "active" and excluded
+// from progress totals until the date rolls over at midnight.
+async function getLinkedDayIds(): Promise<Set<number>> {
+  const supabase = createSafeClient();
+  if (!supabase) return new Set();
+  try {
+    const { data } = await supabase
+      .from('days')
+      .select('id, strava_activity_id')
+      .not('strava_activity_id', 'is', null);
+    return new Set((data ?? []).map((d) => d.id));
+  } catch {
+    return new Set();
+  }
+}
+
 // Post-ride day IDs: 9 = Sat Sep 12, 10 = Sun Sep 13, 11 = Mon Sep 14
 async function getPostHikeDiaryEntries(): Promise<Record<number, string>> {
   const supabase = createSafeClient();
@@ -94,10 +112,11 @@ function getTripInfo(): { phase: 'before' | 'during' | 'after'; activeDayId: num
   return { phase, activeDayId, isPreRideDay, daysUntil, currentDate: today };
 }
 
-function getDayStatuses(currentDate: string): Record<number, DayStatus> {
+function getDayStatuses(currentDate: string, linkedDayIds: Set<number>): Record<number, DayStatus> {
   const statuses: Record<number, DayStatus> = {};
   DAYS_DATA.forEach((day) => {
-    if (currentDate < day.date) statuses[day.id] = 'upcoming';
+    if (linkedDayIds.has(day.id)) statuses[day.id] = 'completed';
+    else if (currentDate < day.date) statuses[day.id] = 'upcoming';
     else if (currentDate === day.date) statuses[day.id] = 'active';
     else statuses[day.id] = 'completed';
   });
@@ -106,11 +125,12 @@ function getDayStatuses(currentDate: string): Record<number, DayStatus> {
 
 export default async function HomePage() {
   const tripInfo = getTripInfo();
-  const dayStatuses = getDayStatuses(tripInfo.currentDate);
-  const [tripStatus, postHikeDiary] = await Promise.all([
+  const [tripStatus, postHikeDiary, linkedDayIds] = await Promise.all([
     getTripStatus(),
     getPostHikeDiaryEntries(),
+    getLinkedDayIds(),
   ]);
+  const dayStatuses = getDayStatuses(tripInfo.currentDate, linkedDayIds);
 
   // An admin current_day override (trip running off the fixed schedule) can
   // point "currently riding" at a different day than the date match above.

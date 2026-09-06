@@ -89,7 +89,25 @@ async function getDayLiveState(dayId: number): Promise<{
   }
 }
 
-function getDayStatus(day: DayData): DayStatus {
+// Days with a real Strava activity linked count as completed regardless of
+// the calendar date — otherwise a day that's genuinely done still shows as
+// "active" until the date rolls over at midnight.
+async function getLinkedDayIds(): Promise<Set<number>> {
+  const supabase = createSafeClient();
+  if (!supabase) return new Set();
+  try {
+    const { data } = await supabase
+      .from('days')
+      .select('id, strava_activity_id')
+      .not('strava_activity_id', 'is', null);
+    return new Set((data ?? []).map((d) => d.id));
+  } catch {
+    return new Set();
+  }
+}
+
+function getDayStatus(day: DayData, linkedDayIds: Set<number>): DayStatus {
+  if (linkedDayIds.has(day.id)) return 'completed';
   const now = new Date();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: TRIP_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
   if (today < day.date) return 'upcoming';
@@ -158,16 +176,17 @@ export default async function DayPage({ params }: PageProps) {
 
   const prevDay = DAYS_DATA.find((d) => d.id === dayId - 1);
   const nextDay = DAYS_DATA.find((d) => d.id === dayId + 1);
-  const status = getDayStatus(day);
 
-  const [tripStatus, dayLiveState, heroPhoto, dayTimes, isAdmin] = await Promise.all([
+  const [tripStatus, dayLiveState, heroPhoto, dayTimes, isAdmin, linkedDayIds] = await Promise.all([
     getTripStatus(),
     getDayLiveState(dayId),
     getFirstPhoto(dayId),
     getDayTimes(dayId),
     getAdminSession(),
+    getLinkedDayIds(),
   ]);
   const { stravaActivityId, garminLivetrackUrl, garminLivetrackUpdatedAt, videoUrl } = dayLiveState;
+  const status = getDayStatus(day, linkedDayIds);
 
   // isToday: either the calendar date matches, OR admin has manually overridden
   // current_day to this day — but only for the day that override was set on,
@@ -464,7 +483,7 @@ export default async function DayPage({ params }: PageProps) {
               <div className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-3">Route Progress</div>
               <div className="space-y-1">
                 {DAYS_DATA.map((d) => {
-                  const dStatus = getDayStatus(d);
+                  const dStatus = getDayStatus(d, linkedDayIds);
                   return (
                     <Link
                       key={d.id}
