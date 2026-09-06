@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import DayTabs from '@/components/DayTabs';
+import DayVideo from '@/components/DayVideo';
 import PageTransition from '@/components/PageTransition';
 import { DAYS_DATA, TRIP_TIMEZONE, getDateInTZ } from '@/lib/tripData';
 import { DayData, DayStatus } from '@/types';
@@ -309,6 +310,9 @@ export default async function DayPage({ params }: PageProps) {
       {/* Main content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
+        {/* Recap video — shown prominently up front, no tab click needed */}
+        {videoUrl && <DayVideo videoUrl={videoUrl} />}
+
         {/* Two-column layout for md+ */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -321,7 +325,6 @@ export default async function DayPage({ params }: PageProps) {
               isAdmin={isAdmin}
               garminLivetrackUrl={garminLivetrackUrl}
               garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
-              videoUrl={videoUrl}
               departureTime={dayTimes.departure_time}
               arrivalTime={dayTimes.arrival_time}
               elevationProfile={getElevationProfile(dayId)}

@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import {
-  Activity, Map, BookOpen, Camera, MessageSquare, Info, Video,
+  Activity, Map, BookOpen, Camera, MessageSquare, Info,
   ExternalLink, Bed, UtensilsCrossed, ShoppingBag, CheckCircle2, AlertCircle, Download,
 } from 'lucide-react';
 import StravaActivity from '@/components/StravaActivity';
 import DiaryEntry from '@/components/DiaryEntry';
 import PhotoGallery from '@/components/PhotoGallery';
-import DayVideo from '@/components/DayVideo';
 import Comments from '@/components/Comments';
 import ElevationProfileChart from '@/components/ElevationProfileChart';
 import { DayData } from '@/types';
@@ -22,7 +21,6 @@ interface DayTabsProps {
   isAdmin?: boolean;
   garminLivetrackUrl: string | null;
   garminLivetrackUpdatedAt?: string | null;
-  videoUrl?: string | null;
   departureTime?: string | null;
   arrivalTime?: string | null;
   elevationProfile?: { d: number; e: number }[];
@@ -32,7 +30,6 @@ const TABS = [
   { id: 'activity', label: 'Activity', icon: Activity },
   { id: 'route',    label: 'Route',    icon: Map },
   { id: 'diary',    label: 'Diary',    icon: BookOpen },
-  { id: 'video',    label: 'Video',    icon: Video },
   { id: 'photos',   label: 'Photos',   icon: Camera },
   { id: 'comments', label: 'Comments', icon: MessageSquare },
   { id: 'info',     label: 'Info',     icon: Info },   // mobile-only
@@ -40,7 +37,7 @@ const TABS = [
 
 type TabId = typeof TABS[number]['id'];
 
-export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = false, garminLivetrackUrl, garminLivetrackUpdatedAt, videoUrl, departureTime, arrivalTime, elevationProfile }: DayTabsProps) {
+export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = false, garminLivetrackUrl, garminLivetrackUpdatedAt, departureTime, arrivalTime, elevationProfile }: DayTabsProps) {
   const [active, setActive] = useState<TabId>('activity');
 
   return (
@@ -139,10 +136,6 @@ export default function DayTabs({ day, stravaActivityId, isToday, isAdmin = fals
         <DiaryEntry dayId={day.id} />
       </div>
 
-      {/* Video */}
-      <div className={active === 'video' ? 'block' : 'hidden'}>
-        <DayVideo videoUrl={videoUrl ?? null} />
-      </div>
 
       {/* Photos */}
       <div className={active === 'photos' ? 'block' : 'hidden'}>
