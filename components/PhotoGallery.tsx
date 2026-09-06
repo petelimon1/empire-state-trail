@@ -19,6 +19,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [captionStatus, setCaptionStatus] = useState<Record<string, 'saving' | 'saved' | undefined>>({});
 
   useEffect(() => {
     fetchPhotos();
@@ -99,14 +100,20 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
   }
 
   async function saveCaption(photoId: string, caption: string) {
+    setCaptionStatus((prev) => ({ ...prev, [photoId]: 'saving' }));
     try {
       await fetch('/api/photos', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: photoId, caption }),
       });
+      setCaptionStatus((prev) => ({ ...prev, [photoId]: 'saved' }));
+      setTimeout(() => {
+        setCaptionStatus((prev) => ({ ...prev, [photoId]: undefined }));
+      }, 2000);
     } catch (err) {
       console.error('Caption save failed:', err);
+      setCaptionStatus((prev) => ({ ...prev, [photoId]: undefined }));
     }
   }
 
@@ -251,18 +258,33 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
                   )}
                 </div>
                 {isAdmin ? (
-                  <textarea
-                    value={photo.caption || ''}
-                    onChange={(e) => {
-                      handleCaptionChange(photo.id, e.target.value);
-                      autoGrow(e.target);
-                    }}
-                    onBlur={(e) => saveCaption(photo.id, e.target.value)}
-                    ref={autoGrow}
-                    rows={1}
-                    placeholder="Add a caption..."
-                    className="w-full bg-slate-900/80 text-slate-300 placeholder-slate-600 text-xs px-2 py-1.5 outline-none border-t border-slate-800 focus:bg-slate-800 resize-none overflow-hidden block"
-                  />
+                  <div className="border-t border-slate-800">
+                    <textarea
+                      value={photo.caption || ''}
+                      onChange={(e) => {
+                        handleCaptionChange(photo.id, e.target.value);
+                        autoGrow(e.target);
+                      }}
+                      onBlur={(e) => saveCaption(photo.id, e.target.value)}
+                      ref={autoGrow}
+                      rows={1}
+                      placeholder="Add a caption..."
+                      className="w-full bg-slate-900/80 text-slate-300 placeholder-slate-600 text-xs px-2 py-1.5 outline-none focus:bg-slate-800 resize-none overflow-hidden block"
+                    />
+                    <div className="flex items-center justify-between px-2 pb-1.5">
+                      <button
+                        type="button"
+                        onClick={() => saveCaption(photo.id, photo.caption || '')}
+                        disabled={captionStatus[photo.id] === 'saving'}
+                        className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                      >
+                        {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
+                      </button>
+                      {captionStatus[photo.id] === 'saved' && (
+                        <span className="text-emerald-400 text-xs">✓ Saved</span>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   photo.caption && (
                     <p className="text-slate-500 text-xs px-2 py-1.5 border-t border-slate-800/60 whitespace-pre-wrap">{photo.caption}</p>

@@ -89,6 +89,7 @@ export default function AdminDashboardClient() {
   const [manualLng, setManualLng] = useState('');
   const [locationSaving, setLocationSaving] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
+  const [captionStatus, setCaptionStatus] = useState<Record<string, 'saving' | 'saved' | undefined>>({});
 
   useEffect(() => {
     fetchTripStatus();
@@ -337,14 +338,20 @@ export default function AdminDashboardClient() {
   }
 
   async function savePhotoCaption(photoId: string, caption: string) {
+    setCaptionStatus((prev) => ({ ...prev, [photoId]: 'saving' }));
     try {
       await fetch('/api/photos', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: photoId, caption }),
       });
+      setCaptionStatus((prev) => ({ ...prev, [photoId]: 'saved' }));
+      setTimeout(() => {
+        setCaptionStatus((prev) => ({ ...prev, [photoId]: undefined }));
+      }, 2000);
     } catch (err) {
       console.error('Caption save error:', err);
+      setCaptionStatus((prev) => ({ ...prev, [photoId]: undefined }));
     }
   }
 
@@ -1383,6 +1390,19 @@ export default function AdminDashboardClient() {
                                   placeholder="Caption..."
                                   className="w-full bg-slate-900 text-slate-300 placeholder-slate-600 text-xs px-1.5 py-1 outline-none border-t border-slate-800 focus:bg-slate-800 resize-none overflow-hidden block"
                                 />
+                                <div className="flex items-center justify-between px-1.5 pb-1 bg-slate-900">
+                                  <button
+                                    type="button"
+                                    onClick={() => savePhotoCaption(photo.id, photo.caption || '')}
+                                    disabled={captionStatus[photo.id] === 'saving'}
+                                    className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                                  >
+                                    {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
+                                  </button>
+                                  {captionStatus[photo.id] === 'saved' && (
+                                    <span className="text-emerald-400 text-xs">✓ Saved</span>
+                                  )}
+                                </div>
                               </div>
                             ))}
                           </div>
