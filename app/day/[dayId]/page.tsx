@@ -60,28 +60,31 @@ async function getTripStatus() {
   }
 }
 
-// LiveTrack now lives on the day's own row, not on trip_status, so this
-// pulls the Strava link and the LiveTrack fields together in one query.
+// LiveTrack and video live on the day's own row, not on trip_status, so
+// this pulls all of a day's admin-settable fields together in one query.
 async function getDayLiveState(dayId: number): Promise<{
   stravaActivityId: string | null;
   garminLivetrackUrl: string | null;
   garminLivetrackUpdatedAt: string | null;
+  videoUrl: string | null;
 }> {
+  const empty = { stravaActivityId: null, garminLivetrackUrl: null, garminLivetrackUpdatedAt: null, videoUrl: null };
   const supabase = createSafeClient();
-  if (!supabase) return { stravaActivityId: null, garminLivetrackUrl: null, garminLivetrackUpdatedAt: null };
+  if (!supabase) return empty;
   try {
     const { data } = await supabase
       .from('days')
-      .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at')
+      .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at, video_url')
       .eq('id', dayId)
       .single();
     return {
       stravaActivityId: data?.strava_activity_id ? String(data.strava_activity_id) : null,
       garminLivetrackUrl: data?.garmin_livetrack_url ?? null,
       garminLivetrackUpdatedAt: data?.garmin_livetrack_updated_at ?? null,
+      videoUrl: data?.video_url ?? null,
     };
   } catch {
-    return { stravaActivityId: null, garminLivetrackUrl: null, garminLivetrackUpdatedAt: null };
+    return empty;
   }
 }
 
@@ -163,7 +166,7 @@ export default async function DayPage({ params }: PageProps) {
     getDayTimes(dayId),
     getAdminSession(),
   ]);
-  const { stravaActivityId, garminLivetrackUrl, garminLivetrackUpdatedAt } = dayLiveState;
+  const { stravaActivityId, garminLivetrackUrl, garminLivetrackUpdatedAt, videoUrl } = dayLiveState;
 
   // isToday: either the calendar date matches, OR admin has manually set current_day to this day
   const isToday = status === 'active' || tripStatus?.current_day === dayId;
@@ -315,6 +318,7 @@ export default async function DayPage({ params }: PageProps) {
               isAdmin={isAdmin}
               garminLivetrackUrl={garminLivetrackUrl}
               garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
+              videoUrl={videoUrl}
               departureTime={dayTimes.departure_time}
               arrivalTime={dayTimes.arrival_time}
               elevationProfile={getElevationProfile(dayId)}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/auth';
 import { createServiceClient, createSafeClient } from '@/lib/supabase';
+import { parseVideoUrl } from '@/lib/videoEmbed';
 
 export async function GET() {
   const supabase = createSafeClient();
@@ -89,6 +90,24 @@ export async function PATCH(request: NextRequest) {
           garmin_livetrack_url: url,
           garmin_livetrack_updated_at: url ? new Date().toISOString() : null,
         })
+        .eq('id', body.dayId);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    // Handle day-specific recap video URL update (YouTube or Vimeo)
+    if (body.dayId && body.video_url !== undefined) {
+      const url: string | null = body.video_url || null;
+      if (url && !parseVideoUrl(url)) {
+        return NextResponse.json({ error: 'Not a recognized YouTube or Vimeo link' }, { status: 400 });
+      }
+
+      const { error } = await supabase
+        .from('days')
+        .update({ video_url: url })
         .eq('id', body.dayId);
 
       if (error) {

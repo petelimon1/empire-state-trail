@@ -10,6 +10,7 @@ export interface DayData {
   strava_activity_id?: string | null;
   garmin_livetrack_url?: string | null;
   garmin_livetrack_updated_at?: string | null;
+  video_url?: string | null;
   accommodation_name: string;
   accommodation_url?: string | null;
   accommodation_booking_ref?: string | null;

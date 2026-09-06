@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS days (
   strava_activity_id BIGINT,
   garmin_livetrack_url TEXT,
   garmin_livetrack_updated_at TIMESTAMPTZ,
+  video_url TEXT,
   accommodation_name TEXT,
   accommodation_url TEXT,
   accommodation_booking_ref TEXT,
@@ -37,6 +38,7 @@ CREATE TABLE IF NOT EXISTS days (
 -- columns on a live `days` table.
 ALTER TABLE days ADD COLUMN IF NOT EXISTS garmin_livetrack_url TEXT;
 ALTER TABLE days ADD COLUMN IF NOT EXISTS garmin_livetrack_updated_at TIMESTAMPTZ;
+ALTER TABLE days ADD COLUMN IF NOT EXISTS video_url TEXT;
 
 CREATE TABLE IF NOT EXISTS diary_entries (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

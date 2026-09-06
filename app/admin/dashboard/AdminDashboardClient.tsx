@@ -24,6 +24,7 @@ import {
   XCircle,
   MessageSquare,
   Link2Off,
+  Video,
 } from 'lucide-react';
 import { DAYS_DATA } from '@/lib/tripData';
 import { cn } from '@/lib/utils';
@@ -58,6 +59,9 @@ interface DaySection {
   livetrackUpdatedAt: string | null;
   savingLivetrack: boolean;
   livetrackMessage: string;
+  videoUrl: string;
+  savingVideo: boolean;
+  videoMessage: string;
   uploading: boolean;
   uploadError: string;
   photos: Array<{ id: string; public_url: string; caption: string | null }>;
@@ -104,6 +108,9 @@ export default function AdminDashboardClient() {
         livetrackUpdatedAt: null,
         savingLivetrack: false,
         livetrackMessage: '',
+        videoUrl: '',
+        savingVideo: false,
+        videoMessage: '',
         uploading: false,
         uploadError: '',
         photos: [],
@@ -231,6 +238,7 @@ export default function AdminDashboardClient() {
           stravaId: dayData?.strava_activity_id ? String(dayData.strava_activity_id) : '',
           livetrackUrl: dayData?.garmin_livetrack_url || '',
           livetrackUpdatedAt: dayData?.garmin_livetrack_updated_at || null,
+          videoUrl: dayData?.video_url || '',
           photos: Array.isArray(photosData) ? photosData : [],
           comments: Array.isArray(commentsData) ? commentsData : [],
         },
@@ -422,6 +430,47 @@ export default function AdminDashboardClient() {
       setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], livetrackMessage: `Error: ${err.message}` } }));
     } finally {
       setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingLivetrack: false } }));
+    }
+  }
+
+  async function handleSaveVideo(dayId: number) {
+    const section = daySections[dayId];
+    if (!section) return;
+    setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingVideo: true, videoMessage: '' } }));
+    try {
+      const r = await fetch('/api/trip-status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dayId, video_url: section.videoUrl || null }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Failed');
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], videoMessage: '✓ Saved' } }));
+    } catch (err: any) {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], videoMessage: `Error: ${err.message}` } }));
+    } finally {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingVideo: false } }));
+    }
+  }
+
+  async function handleClearVideo(dayId: number) {
+    if (!confirm('Remove the recap video for this day?')) return;
+    setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingVideo: true, videoMessage: '' } }));
+    try {
+      const r = await fetch('/api/trip-status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dayId, video_url: null }),
+      });
+      if (!r.ok) {
+        const data = await r.json();
+        throw new Error(data.error || 'Failed');
+      }
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], videoUrl: '', videoMessage: '✓ Removed' } }));
+    } catch (err: any) {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], videoMessage: `Error: ${err.message}` } }));
+    } finally {
+      setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], savingVideo: false } }));
     }
   }
 
@@ -1191,6 +1240,56 @@ export default function AdminDashboardClient() {
                         )}
                         <p className="text-slate-600 text-xs mt-1">
                           Set automatically via Zapier when you start a Garmin activity, and cleared automatically once the finished ride syncs to Strava. Only touch this manually as a fallback.
+                        </p>
+                      </div>
+
+                      {/* Recap Video */}
+                      <div>
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
+                          <Video className="w-4 h-4 text-highland-green" />
+                          Day Recap Video
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={section.videoUrl}
+                            onChange={(e) =>
+                              setDaySections((prev) => ({
+                                ...prev,
+                                [day.id]: { ...prev[day.id], videoUrl: e.target.value },
+                              }))
+                            }
+                            placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-green text-sm"
+                          />
+                          <button
+                            type="button"
+                            disabled={section.savingVideo}
+                            onClick={() => handleSaveVideo(day.id)}
+                            className="bg-highland-green/20 hover:bg-highland-green/30 border border-highland-green/30 text-highland-green px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {section.savingVideo ? 'Saving…' : 'Save'}
+                          </button>
+                          {section.videoUrl && (
+                            <button
+                              type="button"
+                              disabled={section.savingVideo}
+                              onClick={() => handleClearVideo(day.id)}
+                              title="Remove the recap video for this day"
+                              className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        {section.videoMessage && (
+                          <p className={`text-xs mt-1 ${section.videoMessage.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}`}>
+                            {section.videoMessage}
+                          </p>
+                        )}
+                        <p className="text-slate-600 text-xs mt-1">
+                          Paste a YouTube or Vimeo link (e.g. after uploading your iMovie export) — shown in the Video tab on this day's page.
                         </p>
                       </div>
 

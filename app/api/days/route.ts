@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
   if (isNaN(dayId)) return NextResponse.json({ error: 'Invalid dayId' }, { status: 400 });
 
   const supabase = createSafeClient();
-  if (!supabase) return NextResponse.json({ strava_activity_id: null, garmin_livetrack_url: null, garmin_livetrack_updated_at: null });
+  if (!supabase) return NextResponse.json({ strava_activity_id: null, garmin_livetrack_url: null, garmin_livetrack_updated_at: null, video_url: null });
 
   const { data } = await supabase
     .from('days')
-    .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at')
+    .select('strava_activity_id, garmin_livetrack_url, garmin_livetrack_updated_at, video_url')
     .eq('id', dayId)
     .single();
 
@@ -23,5 +23,6 @@ export async function GET(request: NextRequest) {
     strava_activity_id: data?.strava_activity_id ?? null,
     garmin_livetrack_url: data?.garmin_livetrack_url ?? null,
     garmin_livetrack_updated_at: data?.garmin_livetrack_updated_at ?? null,
+    video_url: data?.video_url ?? null,
   });
 }
