@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { DAYS_DATA } from '@/lib/tripData';
 import { cn } from '@/lib/utils';
+import { compressImageForUpload } from '@/lib/imageCompress';
 
 interface TripStatus {
   current_day: number | null;
@@ -264,8 +265,9 @@ export default function AdminDashboardClient() {
     setDaySections((prev) => ({ ...prev, [dayId]: { ...prev[dayId], uploading: true, uploadError: '' } }));
 
     for (const file of Array.from(files)) {
+      const uploadFile = await compressImageForUpload(file);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', uploadFile);
       formData.append('dayId', String(dayId));
 
       try {

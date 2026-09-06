@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Camera, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import Image from 'next/image';
 import { Photo } from '@/types';
+import { compressImageForUpload } from '@/lib/imageCompress';
 
 interface PhotoGalleryProps {
   dayId: number;
@@ -48,8 +49,9 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
     for (const file of Array.from(files)) {
       // Allow files with no type (HEIC on some browsers reports empty type)
       if (file.type && !file.type.startsWith('image/')) continue;
+      const uploadFile = await compressImageForUpload(file);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', uploadFile);
       formData.append('dayId', String(dayId));
 
       try {
