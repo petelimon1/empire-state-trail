@@ -1,14 +1,44 @@
 import { StravaActivity } from '@/types';
+import { createServiceClient } from './supabase';
 
 const STRAVA_API_BASE = 'https://www.strava.com/api/v3';
 
+// Strava rotates the refresh token on every use — the response to a refresh
+// call includes a NEW refresh_token, and the old one stops working. Each
+// serverless invocation is a fresh process, so a refresh token cached only
+// in an env var (never updated after deploy) goes stale after exactly one
+// use anywhere. Caching the access token + persisting the rotated refresh
+// token in the database (shared across invocations) fixes both: most calls
+// reuse the still-valid cached access token with no refresh at all, and
+// when a refresh is needed, the next one picks up the current token.
 export async function getStravaAccessToken(): Promise<string> {
-  const refreshToken = process.env.STRAVA_REFRESH_TOKEN;
   const clientId = process.env.STRAVA_CLIENT_ID;
   const clientSecret = process.env.STRAVA_CLIENT_SECRET;
-
-  if (!refreshToken || !clientId || !clientSecret) {
+  if (!clientId || !clientSecret) {
     throw new Error('Missing Strava credentials');
+  }
+
+  const supabase = createServiceClient();
+  const { data: cached } = await supabase
+    .from('strava_tokens')
+    .select('access_token, access_token_expires_at, refresh_token')
+    .eq('id', 1)
+    .single();
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (
+    cached?.access_token &&
+    cached?.access_token_expires_at &&
+    cached.access_token_expires_at - 300 > nowSeconds
+  ) {
+    return cached.access_token;
+  }
+
+  // Fall back to the env var only for the very first call ever made — after
+  // that, the database always holds the current (rotated) refresh token.
+  const refreshToken = cached?.refresh_token || process.env.STRAVA_REFRESH_TOKEN;
+  if (!refreshToken) {
+    throw new Error('Missing Strava refresh token');
   }
 
   const response = await fetch('https://www.strava.com/oauth/token', {
@@ -28,6 +58,17 @@ export async function getStravaAccessToken(): Promise<string> {
   }
 
   const data = await response.json();
+
+  await supabase
+    .from('strava_tokens')
+    .update({
+      access_token: data.access_token,
+      access_token_expires_at: data.expires_at,
+      refresh_token: data.refresh_token,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', 1);
+
   return data.access_token;
 }
 

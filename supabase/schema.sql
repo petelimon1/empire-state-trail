@@ -100,6 +100,26 @@ CREATE TABLE IF NOT EXISTS trip_status (
 ALTER TABLE trip_status ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read trip status" ON trip_status FOR SELECT USING (true);
 
+-- Live Strava OAuth credentials — deliberately a separate table from
+-- trip_status, which has a public-read RLS policy. trip_status's public
+-- policy exists so client-side pages can read trip state directly, but that
+-- means anyone with the site's public anon key (necessarily public, since
+-- it's embedded in the client bundle) could read ANY column on that table
+-- via Supabase's REST API, regardless of what our own server code selects.
+-- This table has no public policies at all, so only the service role
+-- (server-side only, see lib/strava.ts) can ever read or write it.
+CREATE TABLE IF NOT EXISTS strava_tokens (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  access_token TEXT,
+  access_token_expires_at BIGINT,
+  refresh_token TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE strava_tokens ENABLE ROW LEVEL SECURITY;
+
+INSERT INTO strava_tokens (id) VALUES (1) ON CONFLICT DO NOTHING;
+
 -- Migration for existing databases (CREATE TABLE IF NOT EXISTS above is a
 -- no-op once the table exists).
 ALTER TABLE trip_status ADD COLUMN IF NOT EXISTS current_day_set_date DATE;
