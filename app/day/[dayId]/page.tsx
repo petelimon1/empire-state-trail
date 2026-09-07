@@ -12,7 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import DayTabs from '@/components/DayTabs';
+import DayContent from '@/components/DayContent';
 import DayVideo from '@/components/DayVideo';
 import PageTransition from '@/components/PageTransition';
 import { DAYS_DATA, TRIP_TIMEZONE, getDateInTZ } from '@/lib/tripData';
@@ -335,17 +335,15 @@ export default async function DayPage({ params }: PageProps) {
         {/* Two-column layout for md+ */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Left column - Tabbed content */}
+          {/* Left column - all of the day's content, stacked */}
           <div className="lg:col-span-2">
-            <DayTabs
+            <DayContent
               day={day}
               stravaActivityId={stravaActivityId}
               isToday={isToday}
               isAdmin={isAdmin}
               garminLivetrackUrl={garminLivetrackUrl}
               garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
-              departureTime={dayTimes.departure_time}
-              arrivalTime={dayTimes.arrival_time}
               elevationProfile={getElevationProfile(dayId)}
             />
           </div>
@@ -353,8 +351,8 @@ export default async function DayPage({ params }: PageProps) {
           {/* Right column - Itinerary details */}
           <div className="space-y-5">
 
-            {/* Day itinerary card — desktop only, the Info tab covers this on mobile */}
-            <div className="hidden lg:block glass-card rounded-xl overflow-hidden">
+            {/* Day itinerary card */}
+            <div className="glass-card rounded-xl overflow-hidden">
               <div className="bg-highland-purple/10 border-b border-highland-purple/20 px-5 py-3">
                 <h3 className="font-display font-semibold text-slate-200">Day Itinerary</h3>
               </div>
