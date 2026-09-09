@@ -11,7 +11,7 @@ const STRAVA_API_BASE = 'https://www.strava.com/api/v3';
 // token in the database (shared across invocations) fixes both: most calls
 // reuse the still-valid cached access token with no refresh at all, and
 // when a refresh is needed, the next one picks up the current token.
-export async function getStravaAccessToken(): Promise<string> {
+export async function getStravaAccessToken(forceRefresh = false): Promise<string> {
   const clientId = process.env.STRAVA_CLIENT_ID;
   const clientSecret = process.env.STRAVA_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
@@ -27,6 +27,7 @@ export async function getStravaAccessToken(): Promise<string> {
 
   const nowSeconds = Math.floor(Date.now() / 1000);
   if (
+    !forceRefresh &&
     cached?.access_token &&
     cached?.access_token_expires_at &&
     cached.access_token_expires_at - 300 > nowSeconds
@@ -72,9 +73,7 @@ export async function getStravaAccessToken(): Promise<string> {
   return data.access_token;
 }
 
-export async function getStravaActivity(activityId: string): Promise<StravaActivity> {
-  const accessToken = await getStravaAccessToken();
-
+async function fetchActivity(activityId: string, accessToken: string): Promise<Response> {
   // No caching here: Next.js's fetch Data Cache keys on URL, not on the
   // Authorization header, so a cached response (including an error from an
   // expired token) would keep being served after a token refresh until the
@@ -82,12 +81,28 @@ export async function getStravaActivity(activityId: string): Promise<StravaActiv
   // Route Handler caching fixed alongside this. The route above already
   // sets its own Cache-Control-free, force-dynamic response, and the client
   // polls on its own interval, so no caching is needed at this layer.
-  const response = await fetch(`${STRAVA_API_BASE}/activities/${activityId}`, {
+  return fetch(`${STRAVA_API_BASE}/activities/${activityId}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
     cache: 'no-store',
   });
+}
+
+export async function getStravaActivity(activityId: string): Promise<StravaActivity> {
+  const accessToken = await getStravaAccessToken();
+  let response = await fetchActivity(activityId, accessToken);
+
+  // Strava rotates the refresh token on every use. If some other request
+  // (e.g. the webhook, firing at almost the same moment as this one) refreshed
+  // concurrently, our cached access_token can be rejected even though its
+  // recorded expiry hasn't passed yet — the expiry math trusts our own
+  // record, not Strava's actual state. On a 401, force a real refresh
+  // (bypassing the cache) and retry once before giving up.
+  if (response.status === 401) {
+    const freshToken = await getStravaAccessToken(true);
+    response = await fetchActivity(activityId, freshToken);
+  }
 
   if (!response.ok) {
     const err = await response.text();
