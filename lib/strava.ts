@@ -75,11 +75,18 @@ export async function getStravaAccessToken(): Promise<string> {
 export async function getStravaActivity(activityId: string): Promise<StravaActivity> {
   const accessToken = await getStravaAccessToken();
 
+  // No caching here: Next.js's fetch Data Cache keys on URL, not on the
+  // Authorization header, so a cached response (including an error from an
+  // expired token) would keep being served after a token refresh until the
+  // 300s window passed — a second, independent staleness bug on top of the
+  // Route Handler caching fixed alongside this. The route above already
+  // sets its own Cache-Control-free, force-dynamic response, and the client
+  // polls on its own interval, so no caching is needed at this layer.
   const response = await fetch(`${STRAVA_API_BASE}/activities/${activityId}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    next: { revalidate: 300 }, // Cache for 5 minutes
+    cache: 'no-store',
   });
 
   if (!response.ok) {

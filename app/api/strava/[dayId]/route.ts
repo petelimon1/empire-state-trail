@@ -3,6 +3,13 @@ import { getStravaActivity } from '@/lib/strava';
 import { DAYS_DATA } from '@/lib/tripData';
 import { createSafeClient } from '@/lib/supabase';
 
+// Next.js caches GET Route Handlers by default when nothing marks them as
+// dynamic — including error responses. Without this, a single failed
+// Strava fetch (e.g. from a since-fixed token issue) could get cached and
+// keep being served verbatim on every subsequent request, forever, with
+// the handler never actually re-running to pick up the fix.
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { dayId: string } }
@@ -39,11 +46,7 @@ export async function GET(
 
   try {
     const activity = await getStravaActivity(activityId);
-    return NextResponse.json(activity, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
-      },
-    });
+    return NextResponse.json(activity);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed to fetch activity' }, { status: 500 });
   }
