@@ -70,22 +70,6 @@ async function getLinkedDayIds(): Promise<Set<number>> {
   }
 }
 
-// Post-ride day IDs: 9 = Sat Sep 12, 10 = Sun Sep 13, 11 = Mon Sep 14
-async function getPostHikeDiaryEntries(): Promise<Record<number, string>> {
-  const supabase = createSafeClient();
-  if (!supabase) return {};
-  try {
-    const { data } = await supabase
-      .from('diary_entries')
-      .select('day_id, content')
-      .in('day_id', [9, 10, 11]);
-    if (!data) return {};
-    return Object.fromEntries(data.map((r) => [r.day_id, r.content]));
-  } catch {
-    return {};
-  }
-}
-
 function getTripInfo(): { phase: 'before' | 'during' | 'after'; activeDayId: number | null; isPreRideDay: boolean; daysUntil: number; currentDate: string } {
   const now = new Date();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: TRIP_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
@@ -125,9 +109,8 @@ function getDayStatuses(currentDate: string, linkedDayIds: Set<number>): Record<
 
 export default async function HomePage() {
   const tripInfo = getTripInfo();
-  const [tripStatus, postHikeDiary, linkedDayIds] = await Promise.all([
+  const [tripStatus, linkedDayIds] = await Promise.all([
     getTripStatus(),
-    getPostHikeDiaryEntries(),
     getLinkedDayIds(),
   ]);
   const dayStatuses = getDayStatuses(tripInfo.currentDate, linkedDayIds);
@@ -266,19 +249,6 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* Pre-ride travel day */}
-          <section>
-            <div className="glass-card rounded-2xl p-6 max-w-2xl mx-auto text-left">
-              <h3 className="font-display text-lg font-semibold text-slate-300 mb-3 text-center">Before the Ride</h3>
-              <div className="text-sm">
-                <div className="text-slate-400 font-medium mb-1">{PRE_RIDE_DAY.label} — {PRE_RIDE_DAY.title}</div>
-                <div className="space-y-0.5 pl-3 border-l border-slate-700/60">
-                  <div className="text-slate-400">{PRE_RIDE_DAY.accommodation_name}</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Day Cards */}
           <section>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -290,30 +260,6 @@ export default async function HomePage() {
                   index={index}
                 />
               ))}
-            </div>
-          </section>
-
-          {/* Post-trip info */}
-          <section className="text-center pb-8">
-            <div className="glass-card rounded-2xl p-6 max-w-2xl mx-auto text-left">
-              <h3 className="font-display text-lg font-semibold text-slate-300 mb-4 text-center">After the Ride</h3>
-              <div className="space-y-4">
-                <PostHikeDay
-                  label="Sat Sep 12"
-                  fallback="Montreal - Plans TBD"
-                  content={postHikeDiary[9]}
-                />
-                <PostHikeDay
-                  label="Sun Sep 13"
-                  fallback="Montreal - Plans TBD"
-                  content={postHikeDiary[10]}
-                />
-                <PostHikeDay
-                  label="Mon Sep 14"
-                  fallback="Rental car pickup 9am, drive back to Brooklyn"
-                  content={postHikeDiary[11]}
-                />
-              </div>
             </div>
           </section>
         </div>
@@ -434,31 +380,6 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
   );
 }
 
-
-function PostHikeDay({ label, fallback, content }: { label: string; fallback: string; content?: string }) {
-  if (!content) {
-    return (
-      <div className="text-sm text-slate-500">
-        <span className="text-slate-400 font-medium">{label}</span>
-        <span className="mx-2">—</span>
-        {fallback}
-      </div>
-    );
-  }
-
-  // Render each non-empty line of the diary content
-  const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
-  return (
-    <div className="text-sm">
-      <div className="text-slate-400 font-medium mb-1">{label}</div>
-      <div className="space-y-0.5 pl-3 border-l border-slate-700/60">
-        {lines.map((line, i) => (
-          <div key={i} className="text-slate-400">{line}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function SectionHeader({ title, subtitle, icon }: { title: string; subtitle: string; icon: React.ReactNode }) {
   return (
