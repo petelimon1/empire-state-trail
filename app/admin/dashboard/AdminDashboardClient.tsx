@@ -26,7 +26,7 @@ import {
   Link2Off,
   Video,
 } from 'lucide-react';
-import { DAYS_DATA } from '@/lib/tripData';
+import { DAYS_DATA, MONTREAL_DAY_ID } from '@/lib/tripData';
 import { cn } from '@/lib/utils';
 import { compressImageForUpload } from '@/lib/imageCompress';
 
@@ -97,8 +97,8 @@ export default function AdminDashboardClient() {
     fetchWebhookStatus();
     // Initialize day sections
     const sections: Record<number, DaySection> = {};
-    DAYS_DATA.forEach((day) => {
-      sections[day.id] = {
+    [...DAYS_DATA.map((day) => day.id), MONTREAL_DAY_ID].forEach((dayId) => {
+      sections[dayId] = {
         expanded: false,
         diary: '',
         stravaId: '',
@@ -1296,7 +1296,7 @@ export default function AdminDashboardClient() {
                           </p>
                         )}
                         <p className="text-slate-600 text-xs mt-1">
-                          Paste a YouTube or Vimeo link (e.g. after uploading your iMovie export) — shown in the Video tab on this day's page.
+                          Paste a YouTube or Vimeo link (e.g. after uploading your iMovie export) — shown at the top of this day's page.
                         </p>
                       </div>
 
@@ -1490,6 +1490,219 @@ export default function AdminDashboardClient() {
               );
             })}
           </div>
+        </section>
+
+        {/* Post-ride: Montreal — one consolidated video/diary/photo set,
+            not a per-day breakdown, since it's not a riding day. Reuses
+            the same daySections state and handlers as the day cards above. */}
+        <section>
+          <h2 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-highland-purple" />
+            Post-Ride: Montreal
+          </h2>
+
+          {(() => {
+            const section = daySections[MONTREAL_DAY_ID];
+            if (!section) return null;
+
+            return (
+              <div className="glass-card rounded-xl overflow-hidden border border-slate-700/50">
+                <button
+                  onClick={() => toggleDaySection(MONTREAL_DAY_ID)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-highland-purple/20 flex items-center justify-center text-highland-purple">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-slate-200 font-medium text-sm">Montreal</div>
+                      <div className="text-slate-500 text-xs">Sep 12–14, 2026 · after the ride</div>
+                    </div>
+                  </div>
+                  {section.expanded
+                    ? <ChevronUp className="w-4 h-4 text-slate-500" />
+                    : <ChevronDown className="w-4 h-4 text-slate-500" />
+                  }
+                </button>
+
+                {section.expanded && (
+                  <div className="border-t border-slate-800 px-5 py-5 space-y-6">
+
+                    {/* Recap Video */}
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
+                        <Video className="w-4 h-4 text-highland-green" />
+                        Montreal Video
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={section.videoUrl}
+                          onChange={(e) =>
+                            setDaySections((prev) => ({
+                              ...prev,
+                              [MONTREAL_DAY_ID]: { ...prev[MONTREAL_DAY_ID], videoUrl: e.target.value },
+                            }))
+                          }
+                          placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-green text-sm"
+                        />
+                        <button
+                          type="button"
+                          disabled={section.savingVideo}
+                          onClick={() => handleSaveVideo(MONTREAL_DAY_ID)}
+                          className="bg-highland-green/20 hover:bg-highland-green/30 border border-highland-green/30 text-highland-green px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                        >
+                          {section.savingVideo ? 'Saving…' : 'Save'}
+                        </button>
+                        {section.videoUrl && (
+                          <button
+                            type="button"
+                            disabled={section.savingVideo}
+                            onClick={() => handleClearVideo(MONTREAL_DAY_ID)}
+                            title="Remove the Montreal video"
+                            className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      {section.videoMessage && (
+                        <p className={`text-xs mt-1 ${section.videoMessage.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}`}>
+                          {section.videoMessage}
+                        </p>
+                      )}
+                      <p className="text-slate-600 text-xs mt-1">
+                        Paste a YouTube or Vimeo link — shown at the top of the Post-ride page.
+                      </p>
+                    </div>
+
+                    {/* Diary Entry */}
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
+                        <BookOpen className="w-4 h-4 text-highland-purple" />
+                        Montreal Diary Entry
+                      </label>
+                      <textarea
+                        value={section.diary}
+                        onChange={(e) =>
+                          setDaySections((prev) => ({
+                            ...prev,
+                            [MONTREAL_DAY_ID]: { ...prev[MONTREAL_DAY_ID], diary: e.target.value },
+                          }))
+                        }
+                        rows={8}
+                        placeholder="Write about your time in Montreal..."
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple text-sm resize-y"
+                      />
+                      <button
+                        onClick={() => saveDiary(MONTREAL_DAY_ID)}
+                        disabled={section.saving}
+                        className="mt-2 flex items-center gap-2 bg-highland-purple/20 hover:bg-highland-purple/30 border border-highland-purple/30 text-highland-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        {section.saving ? 'Saving...' : 'Save Diary'}
+                      </button>
+                    </div>
+
+                    {/* Photos */}
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-3">
+                        <Camera className="w-4 h-4 text-blue-400" />
+                        Photos
+                      </label>
+
+                      <label
+                        htmlFor={`admin-photo-${MONTREAL_DAY_ID}`}
+                        className="block border-2 border-dashed border-slate-700 hover:border-slate-600 rounded-xl p-4 text-center cursor-pointer transition-colors mb-3"
+                      >
+                        <input
+                          id={`admin-photo-${MONTREAL_DAY_ID}`}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => handlePhotoUpload(MONTREAL_DAY_ID, e.target.files)}
+                        />
+                        <Upload className="w-6 h-6 text-slate-500 mx-auto mb-1" />
+                        <p className="text-slate-500 text-sm">
+                          {section.uploading ? 'Uploading...' : 'Click to upload photos'}
+                        </p>
+                      </label>
+
+                      {section.uploadError && (
+                        <p className="mb-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                          Upload failed: {section.uploadError}
+                        </p>
+                      )}
+
+                      {section.photos.length > 0 ? (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                          {section.photos.map((photo) => (
+                            <div key={photo.id} className="rounded-lg overflow-hidden bg-slate-900/60">
+                              <div className="relative aspect-square group">
+                                <img
+                                  src={photo.public_url}
+                                  alt="Uploaded photo"
+                                  className="w-full h-full object-cover"
+                                />
+                                <button
+                                  onClick={() => deletePhoto(MONTREAL_DAY_ID, photo.id)}
+                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="w-3.5 h-3.5 text-white" />
+                                </button>
+                              </div>
+                              <textarea
+                                value={photo.caption || ''}
+                                onChange={(e) => {
+                                  updatePhotoCaption(MONTREAL_DAY_ID, photo.id, e.target.value);
+                                  autoGrow(e.target);
+                                }}
+                                onBlur={(e) => savePhotoCaption(photo.id, e.target.value)}
+                                ref={autoGrow}
+                                rows={1}
+                                placeholder="Caption..."
+                                className="w-full bg-slate-900 text-slate-300 placeholder-slate-600 text-xs px-1.5 py-1 outline-none border-t border-slate-800 focus:bg-slate-800 resize-none overflow-hidden block"
+                              />
+                              <div className="flex items-center justify-between px-1.5 pb-1 bg-slate-900">
+                                <button
+                                  type="button"
+                                  onClick={() => savePhotoCaption(photo.id, photo.caption || '')}
+                                  disabled={captionStatus[photo.id] === 'saving'}
+                                  className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                                >
+                                  {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
+                                </button>
+                                {captionStatus[photo.id] === 'saved' && (
+                                  <span className="text-emerald-400 text-xs">✓ Saved</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-slate-600 text-sm">No photos uploaded yet</p>
+                      )}
+                    </div>
+
+                    {/* View post-ride page link */}
+                    <div>
+                      <Link
+                        href="/post-ride"
+                        className="text-highland-purple hover:text-purple-400 text-sm transition-colors"
+                        target="_blank"
+                      >
+                        View Post-ride page →
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </section>
       </div>
     </div>

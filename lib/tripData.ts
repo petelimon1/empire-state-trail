@@ -242,12 +242,11 @@ export const DAYS_DATA: DayData[] = [
   },
 ];
 
-// Post-ride day IDs: 9 = Sat Sep 12, 10 = Sun Sep 13, 11 = Mon Sep 14
-export const POST_HIKE_DAYS = [
-  { id: 9, date: '2026-09-12', label: 'Saturday, Sep 12', title: 'Montreal - Plans TBD' },
-  { id: 10, date: '2026-09-13', label: 'Sunday, Sep 13', title: 'Montreal - Plans TBD' },
-  { id: 11, date: '2026-09-14', label: 'Monday, Sep 14', title: 'Rental car pickup 9am, drive back to Brooklyn' },
-];
+// The post-ride stay in Montreal (Sep 12-14) isn't a riding day, so unlike
+// DAYS_DATA it gets one consolidated video/diary/photo gallery rather than
+// a per-day breakdown — this is the `days` table row (and diary_entries /
+// photos foreign key) it all attaches to.
+export const MONTREAL_DAY_ID = 9;
 
 // Derived from DAYS_DATA rather than hardcoded, so correcting one day's
 // distance/elevation (e.g. to match its actual Strava route) can't leave
