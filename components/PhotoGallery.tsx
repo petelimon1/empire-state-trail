@@ -152,7 +152,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
     return (
       <div className="glass-card rounded-xl p-6">
         <h3 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
-          <Camera className="w-5 h-5 text-highland-purple" />
+          <Camera className="w-5 h-5 text-highland-rust" />
           Photos
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -168,7 +168,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
     <>
       <div className="glass-card rounded-xl p-6">
         <h3 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
-          <Camera className="w-5 h-5 text-highland-purple" />
+          <Camera className="w-5 h-5 text-highland-rust" />
           Photos
           {photos.length > 0 && (
             <span className="text-sm font-normal text-slate-500 font-body">({photos.length})</span>
@@ -181,7 +181,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
             htmlFor={`photo-input-${dayId}`}
             className={`mb-4 border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer block ${
               dragOver
-                ? 'border-highland-purple bg-purple-500/10'
+                ? 'border-highland-rust bg-highland-rust/10'
                 : 'border-slate-700 hover:border-slate-600'
             }`}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -276,7 +276,7 @@ export default function PhotoGallery({ dayId, isAdmin = false }: PhotoGalleryPro
                         type="button"
                         onClick={() => saveCaption(photo.id, photo.caption || '')}
                         disabled={captionStatus[photo.id] === 'saving'}
-                        className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                        className="text-highland-rust hover:text-orange-300 text-xs font-medium disabled:opacity-50"
                       >
                         {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
                       </button>

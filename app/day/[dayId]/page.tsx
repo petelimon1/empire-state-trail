@@ -351,7 +351,7 @@ export default async function DayPage({ params }: PageProps) {
 
             {/* Day itinerary card */}
             <div className="glass-card rounded-xl overflow-hidden">
-              <div className="bg-highland-purple/10 border-b border-highland-purple/20 px-5 py-3">
+              <div className="bg-highland-rust/10 border-b border-highland-rust/20 px-5 py-3">
                 <h3 className="font-display font-semibold text-slate-200">Day Itinerary</h3>
               </div>
 
@@ -463,7 +463,7 @@ export default async function DayPage({ params }: PageProps) {
                           href={day.accommodation_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-highland-purple hover:text-purple-400 flex-shrink-0"
+                          className="text-highland-rust hover:text-orange-300 flex-shrink-0"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -486,7 +486,7 @@ export default async function DayPage({ params }: PageProps) {
                       href={`/day/${d.id}`}
                       className={cn(
                         'flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors',
-                        d.id === dayId ? 'bg-highland-purple/20 text-highland-purple' : 'hover:bg-slate-800/50 text-slate-500 hover:text-slate-300'
+                        d.id === dayId ? 'bg-highland-rust/20 text-highland-rust' : 'hover:bg-slate-800/50 text-slate-500 hover:text-slate-300'
                       )}
                     >
                       <div className={cn(

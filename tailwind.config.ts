@@ -10,25 +10,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Highland palette
+        // Trail palette — rust and forest rather than the violet/emerald
+        // combo, so accent colors read as a deliberate choice for this trip
+        // rather than a generic template default.
         highland: {
-          purple: '#8B5CF6',
-          'purple-dark': '#7C3AED',
-          green: '#10B981',
-          amber: '#F59E0B',
-          slate: '#1E293B',
-          'slate-light': '#334155',
-          charcoal: '#0F172A',
+          rust: '#B5502E',
+          'rust-dark': '#8A3B21',
+          green: '#3F6B4A',
         },
       },
       fontFamily: {
-        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
-        body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'ui-serif', 'serif'],
+        body: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
-        'highland-gradient': 'linear-gradient(135deg, #0F172A 0%, #1a1040 40%, #0d2818 100%)',
-        'card-gradient': 'linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.9) 100%)',
-        'hero-gradient': 'linear-gradient(180deg, rgba(5,10,20,0.2) 0%, rgba(5,10,20,0.55) 50%, rgba(5,10,20,0.97) 100%)',
+        'highland-gradient': 'linear-gradient(160deg, #14100d 0%, #241a12 45%, #14201a 100%)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -48,8 +44,6 @@ const config: Config = {
       },
       boxShadow: {
         'glass': '0 4px 32px 0 rgba(0, 0, 0, 0.3)',
-        'glow-purple': '0 0 20px rgba(139, 92, 246, 0.3)',
-        'glow-green': '0 0 20px rgba(16, 185, 129, 0.3)',
       },
     },
   },

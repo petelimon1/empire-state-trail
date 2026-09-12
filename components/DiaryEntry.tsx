@@ -40,7 +40,7 @@ export default function DiaryEntry({ dayId }: DiaryEntryProps) {
   return (
     <div className="glass-card rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <BookOpen className="w-5 h-5 text-highland-purple" />
+        <BookOpen className="w-5 h-5 text-highland-rust" />
         <h3 className="font-display text-xl font-semibold text-slate-200">Trail Diary</h3>
       </div>
 

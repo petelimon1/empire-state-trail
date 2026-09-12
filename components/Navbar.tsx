@@ -25,8 +25,8 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-highland-purple/20 border border-highland-purple/30 flex items-center justify-center group-hover:bg-highland-purple/30 transition-colors">
-              <Bike className="w-5 h-5 text-highland-purple" />
+            <div className="w-8 h-8 rounded-lg bg-highland-rust/20 border border-highland-rust/30 flex items-center justify-center group-hover:bg-highland-rust/30 transition-colors">
+              <Bike className="w-5 h-5 text-highland-rust" />
             </div>
             <div>
               <span className="font-display font-semibold text-slate-200 text-sm leading-tight block">Empire State Trail</span>
@@ -51,7 +51,7 @@ export default function Navbar() {
               <button
                 className={cn(
                   'flex items-center gap-1 text-sm transition-colors',
-                  isAnyDay ? 'text-highland-purple font-medium' : 'text-slate-400 hover:text-slate-200'
+                  isAnyDay ? 'text-highland-rust font-medium' : 'text-slate-400 hover:text-slate-200'
                 )}
               >
                 Days
@@ -68,7 +68,7 @@ export default function Navbar() {
                         className={cn(
                           'block px-4 py-2 text-sm transition-colors',
                           isActive(`/day/${d}`)
-                            ? 'bg-highland-purple/20 text-highland-purple font-medium'
+                            ? 'bg-highland-rust/20 text-highland-rust font-medium'
                             : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                         )}
                       >
@@ -81,7 +81,7 @@ export default function Navbar() {
                         className={cn(
                           'block px-4 py-2 text-sm transition-colors',
                           isActive('/post-ride')
-                            ? 'bg-highland-purple/20 text-highland-purple font-medium'
+                            ? 'bg-highland-rust/20 text-highland-rust font-medium'
                             : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                         )}
                       >
@@ -140,7 +140,7 @@ export default function Navbar() {
                     className={cn(
                       'flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-colors',
                       isActive(`/day/${d}`)
-                        ? 'bg-highland-purple/20 text-highland-purple'
+                        ? 'bg-highland-rust/20 text-highland-rust'
                         : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                     )}
                   >
@@ -153,7 +153,7 @@ export default function Navbar() {
                   className={cn(
                     'col-span-4 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-colors mt-1',
                     isActive('/post-ride')
-                      ? 'bg-highland-purple/20 text-highland-purple'
+                      ? 'bg-highland-rust/20 text-highland-rust'
                       : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                   )}
                 >

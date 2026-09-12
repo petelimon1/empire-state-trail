@@ -103,7 +103,7 @@ export default function Comments({ dayId }: CommentsProps) {
     return (
       <div className="glass-card rounded-xl p-6">
         <h3 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-highland-purple" />
+          <MessageSquare className="w-5 h-5 text-highland-rust" />
           Comments
         </h3>
         <p className="text-slate-500 text-sm">Comments require Supabase configuration.</p>
@@ -114,7 +114,7 @@ export default function Comments({ dayId }: CommentsProps) {
   return (
     <div className="glass-card rounded-xl p-6">
       <h3 className="font-display text-xl font-semibold text-slate-200 mb-6 flex items-center gap-2">
-        <MessageSquare className="w-5 h-5 text-highland-purple" />
+        <MessageSquare className="w-5 h-5 text-highland-rust" />
         Comments
         {comments.length > 0 && (
           <span className="text-sm font-normal text-slate-500 font-body ml-1">({comments.length})</span>
@@ -129,7 +129,7 @@ export default function Comments({ dayId }: CommentsProps) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           maxLength={50}
-          className="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-highland-purple text-sm"
+          className="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-highland-rust text-sm"
         />
         <div>
           <textarea
@@ -138,14 +138,14 @@ export default function Comments({ dayId }: CommentsProps) {
             placeholder="Leave a comment..."
             rows={3}
             maxLength={500}
-            className="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-highland-purple resize-none text-sm"
+            className="w-full bg-slate-900/60 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-highland-rust resize-none text-sm"
           />
           <div className="flex items-center justify-between mt-2">
             <span className="text-xs text-slate-600">{newComment.length}/500</span>
             <button
               type="submit"
               disabled={submitting || !newComment.trim() || !name.trim()}
-              className="flex items-center gap-2 bg-highland-purple hover:bg-highland-purple-dark disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 bg-highland-rust hover:bg-highland-rust-dark disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
               {submitting ? 'Posting...' : 'Post'}

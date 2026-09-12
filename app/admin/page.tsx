@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-highland-gradient flex items-center justify-center px-4">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-highland-purple/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-highland-rust/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-highland-green/8 rounded-full blur-3xl" />
       </div>
 
@@ -50,8 +50,8 @@ export default function AdminLoginPage() {
         <div className="glass-card rounded-2xl p-8 border border-slate-700/50">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-highland-purple/20 border border-highland-purple/30 flex items-center justify-center mb-4">
-              <Mountain className="w-7 h-7 text-highland-purple" />
+            <div className="w-14 h-14 rounded-2xl bg-highland-rust/20 border border-highland-rust/30 flex items-center justify-center mb-4">
+              <Mountain className="w-7 h-7 text-highland-rust" />
             </div>
             <h1 className="font-display text-2xl font-bold text-slate-200">Admin Access</h1>
             <p className="text-slate-500 text-sm mt-1">Empire State Trail 2026</p>
@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple pr-12 text-sm"
+                  className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-rust pr-12 text-sm"
                   required
                   autoFocus
                 />
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full bg-highland-purple hover:bg-highland-purple-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-highland-rust hover:bg-highland-rust-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

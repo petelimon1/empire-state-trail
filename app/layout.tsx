@@ -1,19 +1,23 @@
 import type { Metadata } from 'next';
-import { Inter, Space_Grotesk } from 'next/font/google';
+import { Work_Sans, Fraunces } from 'next/font/google';
 import './globals.css';
 import { UnitsProvider } from '@/components/UnitsProvider';
 
-const inter = Inter({
+const workSans = Work_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const spaceGrotesk = Space_Grotesk({
+// A soft-serif display face instead of the geometric-sans-plus-gradient-text
+// combo — reads more like a travel journal masthead than a SaaS dashboard.
+const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
 });
 
 export const metadata: Metadata = {
@@ -46,12 +50,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`dark ${workSans.variable} ${fraunces.variable}`}>
       <head>
         <link rel="preconnect" href="https://api.mapbox.com" />
         <link rel="preconnect" href="https://events.mapbox.com" />
       </head>
-      <body className={`${inter.className} bg-slate-950 text-slate-200 min-h-screen`}>
+      <body className={`${workSans.className} bg-slate-950 text-slate-200 min-h-screen`}>
         <UnitsProvider>{children}</UnitsProvider>
       </body>
     </html>

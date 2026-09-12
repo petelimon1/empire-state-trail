@@ -316,7 +316,7 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
 function SectionHeader({ title, subtitle, icon }: { title: string; subtitle: string; icon: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3 mb-6">
-      <div className="w-8 h-8 rounded-lg bg-highland-purple/20 border border-highland-purple/20 flex items-center justify-center text-highland-purple mt-0.5 flex-shrink-0">
+      <div className="w-8 h-8 rounded-lg bg-highland-rust/20 border border-highland-rust/20 flex items-center justify-center text-highland-rust mt-0.5 flex-shrink-0">
         {icon}
       </div>
       <div>

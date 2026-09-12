@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MapPin, TrendingUp, ArrowRight, CheckCircle2, Clock, Calendar } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { DayData, DayStatus } from '@/types';
 import { formatShortDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -16,33 +16,31 @@ interface DayCardProps {
 
 const STATUS_CONFIG = {
   completed: {
-    badge: 'Completed',
-    badgeClass: 'badge-completed',
-    borderClass: 'border-emerald-500/30 hover:border-emerald-500/60',
-    icon: CheckCircle2,
-    iconColor: 'text-emerald-500',
+    label: 'Completed',
+    dotClass: 'bg-highland-green',
+    textClass: 'text-[#7FAE8B]',
+    borderClass: 'border-[#3F6B4A]/25 hover:border-[#3F6B4A]/50',
   },
   active: {
-    badge: 'Today',
-    badgeClass: 'badge-active',
-    borderClass: 'border-amber-500/50 hover:border-amber-500/80',
-    icon: Clock,
-    iconColor: 'text-amber-500',
+    label: 'Today',
+    dotClass: 'bg-[#C99A3E]',
+    textClass: 'text-[#D9AC4F]',
+    borderClass: 'border-[#C99A3E]/40 hover:border-[#C99A3E]/70',
   },
   upcoming: {
-    badge: 'Upcoming',
-    badgeClass: 'badge-upcoming',
+    label: 'Upcoming',
+    dotClass: 'bg-slate-600',
+    textClass: 'text-slate-500',
     borderClass: 'border-slate-700/50 hover:border-slate-600/80',
-    icon: Calendar,
-    iconColor: 'text-slate-500',
   },
 };
 
+// A day number set large in the display serif, a small-caps status label
+// instead of a filled pill, and a rule instead of a progress bar (which
+// never meant anything for a single day anyway) — less "dashboard widget,"
+// more "page from a trip journal."
 export default function DayCard({ day, status, index }: DayCardProps) {
   const config = STATUS_CONFIG[status];
-  const Icon = config.icon;
-
-  const progressPercent = ((day.id - 1) / 6) * 100;
 
   return (
     <motion.div
@@ -53,81 +51,49 @@ export default function DayCard({ day, status, index }: DayCardProps) {
       <Link href={`/day/${day.id}`}>
         <div
           className={cn(
-            'glass-card rounded-xl p-5 border transition-all duration-300 group cursor-pointer',
-            config.borderClass,
-            status === 'active' && 'shadow-lg shadow-amber-500/10'
+            'glass-card rounded-lg p-5 border transition-all duration-300 group cursor-pointer',
+            config.borderClass
           )}
         >
           {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div
-                className={cn(
-                  'w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold font-display',
-                  status === 'completed' && 'bg-emerald-500/20 text-emerald-400',
-                  status === 'active' && 'bg-amber-500/20 text-amber-400',
-                  status === 'upcoming' && 'bg-slate-700/50 text-slate-400'
-                )}
-              >
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-baseline gap-2.5">
+              <span className="font-display text-3xl text-slate-300 leading-none">
                 {day.id}
-              </div>
-              <div>
-                <div className="text-xs text-slate-500 font-medium">
-                  {formatShortDate(day.date)}
-                </div>
-              </div>
+              </span>
+              <span className="text-xs text-slate-500">
+                {formatShortDate(day.date)}
+              </span>
             </div>
-            <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', config.badgeClass)}>
-              {config.badge}
-            </span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className={cn('w-1.5 h-1.5 rounded-full', config.dotClass)} />
+              <span className={cn('text-[11px] uppercase tracking-wider font-medium', config.textClass)}>
+                {config.label}
+              </span>
+            </div>
           </div>
 
           {/* Route name */}
-          <h3 className="font-display font-semibold text-slate-200 text-base mb-1 leading-tight group-hover:text-white transition-colors">
+          <h3 className="font-display text-slate-200 text-lg mb-2 leading-tight group-hover:text-white transition-colors">
             {day.from_location}
-            <span className="text-slate-500 mx-1.5 font-normal font-body">→</span>
+            <span className="text-slate-600 mx-1.5 font-body text-sm">to</span>
             {day.to_location}
           </h3>
 
           {/* Stats */}
-          <div className="flex items-center gap-4 mt-2 mb-3">
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <MapPin className="w-3 h-3" />
-              <DistanceValue km={day.distance_km} />
-            </div>
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <TrendingUp className="w-3 h-3" />
-              <ElevationValue m={day.elevation_m} />
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-3">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: status === 'completed' ? '100%' : status === 'active' ? '50%' : '0%' }}
-              transition={{ duration: 1, delay: index * 0.08 + 0.3 }}
-              className={cn(
-                'h-full rounded-full',
-                status === 'completed' ? 'bg-emerald-500' :
-                status === 'active' ? 'bg-amber-500' : 'bg-slate-700'
-              )}
-            />
+          <div className="flex items-center gap-4 text-xs text-slate-500 pb-3 mb-3 border-b border-slate-800/60">
+            <span><DistanceValue km={day.distance_km} /></span>
+            <span aria-hidden="true">·</span>
+            <span><ElevationValue m={day.elevation_m} /> gain</span>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Icon className={cn('w-3.5 h-3.5', config.iconColor)} />
-              <span>{day.accommodation_name}</span>
-            </div>
-          </div>
-
-          {/* Explicit call-to-action — the card content alone doesn't make it
-              obvious that diary/photos/comments live on the day page */}
-          <div className="flex items-center justify-center gap-1.5 mt-3 pt-3 border-t border-slate-800/60 text-xs font-medium text-highland-purple group-hover:text-purple-300 transition-colors">
-            Diary, photos &amp; more
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-all" />
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500">{day.accommodation_name}</span>
+            <span className="flex items-center gap-1 font-medium text-highland-rust group-hover:text-orange-300 transition-colors">
+              Diary &amp; photos
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-all" />
+            </span>
           </div>
         </div>
       </Link>

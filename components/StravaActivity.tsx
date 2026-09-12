@@ -118,7 +118,7 @@ export default function StravaActivity({
 
         <div className="grid grid-cols-2 gap-3">
           <StatBox icon={<Activity className="w-4 h-4" />} label="Distance" value={distance} color="text-highland-green" />
-          <StatBox icon={<Clock className="w-4 h-4" />} label="Moving Time" value={movingTime} color="text-highland-purple" />
+          <StatBox icon={<Clock className="w-4 h-4" />} label="Moving Time" value={movingTime} color="text-highland-rust" />
           <StatBox icon={<TrendingUp className="w-4 h-4" />} label="Elevation" value={elevation} color="text-amber-400" />
           <StatBox icon={<Zap className="w-4 h-4" />} label="Avg Speed" value={pace} color="text-blue-400" />
           {activity.average_heartrate && (
@@ -169,7 +169,7 @@ export default function StravaActivity({
             href={routeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-highland-purple hover:text-purple-400 text-sm transition-colors"
+            className="flex items-center gap-2 text-highland-rust hover:text-orange-300 text-sm transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
             View planned route on Strava

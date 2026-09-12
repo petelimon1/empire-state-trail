@@ -65,7 +65,7 @@ export default async function TestDayPage() {
         <div className="absolute inset-0 bg-highland-gradient opacity-40" />
         <div className="absolute inset-0">
           <div className="absolute top-0 right-1/4 w-72 h-72 bg-yellow-500/8 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-highland-purple/8 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-highland-rust/8 rounded-full blur-3xl" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

@@ -81,7 +81,7 @@ export default function TimezoneDisplay() {
   return (
     <div className="flex items-center gap-4 text-xs text-slate-400">
       <div className="flex items-center gap-1.5">
-        <Clock className="w-3 h-3 text-highland-purple" />
+        <Clock className="w-3 h-3 text-highland-rust" />
         <div>
           <span className="text-slate-500 mr-1">{tripTime.label}:</span>
           <span className="font-mono text-slate-300 font-medium">{tripTime.time}</span>

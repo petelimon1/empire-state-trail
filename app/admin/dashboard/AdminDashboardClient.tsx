@@ -601,8 +601,8 @@ export default function AdminDashboardClient() {
       <nav className="bg-slate-900 border-b border-slate-800 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-highland-purple/20 border border-highland-purple/30 flex items-center justify-center">
-              <Mountain className="w-4 h-4 text-highland-purple" />
+            <div className="w-8 h-8 rounded-lg bg-highland-rust/20 border border-highland-rust/30 flex items-center justify-center">
+              <Mountain className="w-4 h-4 text-highland-rust" />
             </div>
             <div>
               <span className="font-semibold text-slate-200 text-sm">Admin Dashboard</span>
@@ -628,8 +628,8 @@ export default function AdminDashboardClient() {
 
         {/* Trip Status Panel */}
         <section className="glass-card rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-800 bg-highland-purple/5">
-            <Settings className="w-5 h-5 text-highland-purple" />
+          <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-800 bg-highland-rust/5">
+            <Settings className="w-5 h-5 text-highland-rust" />
             <h2 className="font-display text-lg font-semibold text-slate-200">Trip Status</h2>
           </div>
 
@@ -644,7 +644,7 @@ export default function AdminDashboardClient() {
               <select
                 value={selectedDay}
                 onChange={(e) => setSelectedDay(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-highland-purple text-sm"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-highland-rust text-sm"
               >
                 <option value="">— No override (use today's calendar date)</option>
                 {DAYS_DATA.map((day) => (
@@ -662,7 +662,7 @@ export default function AdminDashboardClient() {
               <button
                 onClick={handleSaveTripStatus}
                 disabled={savingStatus}
-                className="flex items-center gap-2 bg-highland-purple hover:bg-highland-purple-dark disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                className="flex items-center gap-2 bg-highland-rust hover:bg-highland-rust-dark disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
               >
                 <Save className="w-4 h-4" />
                 {savingStatus ? 'Saving...' : 'Save Status'}
@@ -1094,7 +1094,7 @@ export default function AdminDashboardClient() {
         {/* Per-day management */}
         <section>
           <h2 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-highland-purple" />
+            <MapPin className="w-5 h-5 text-highland-rust" />
             Day Management
           </h2>
 
@@ -1111,7 +1111,7 @@ export default function AdminDashboardClient() {
                     className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/30 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-highland-purple/20 flex items-center justify-center text-highland-purple font-bold text-sm">
+                      <div className="w-8 h-8 rounded-lg bg-highland-rust/20 flex items-center justify-center text-highland-rust font-bold text-sm">
                         {day.id}
                       </div>
                       <div>
@@ -1147,7 +1147,7 @@ export default function AdminDashboardClient() {
                               }))
                             }
                             placeholder="e.g. 12345678901"
-                            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple text-sm font-mono"
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-rust text-sm font-mono"
                           />
                           <button
                             type="button"
@@ -1303,7 +1303,7 @@ export default function AdminDashboardClient() {
                       {/* Diary Entry */}
                       <div>
                         <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
-                          <BookOpen className="w-4 h-4 text-highland-purple" />
+                          <BookOpen className="w-4 h-4 text-highland-rust" />
                           Trail Diary Entry
                         </label>
                         <textarea
@@ -1316,12 +1316,12 @@ export default function AdminDashboardClient() {
                           }
                           rows={8}
                           placeholder="Write the diary entry for this day..."
-                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple text-sm resize-y"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-rust text-sm resize-y"
                         />
                         <button
                           onClick={() => saveDiary(day.id)}
                           disabled={section.saving}
-                          className="mt-2 flex items-center gap-2 bg-highland-purple/20 hover:bg-highland-purple/30 border border-highland-purple/30 text-highland-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          className="mt-2 flex items-center gap-2 bg-highland-rust/20 hover:bg-highland-rust/30 border border-highland-rust/30 text-highland-rust px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
                           <Save className="w-3.5 h-3.5" />
                           {section.saving ? 'Saving...' : 'Save Diary'}
@@ -1395,7 +1395,7 @@ export default function AdminDashboardClient() {
                                     type="button"
                                     onClick={() => savePhotoCaption(photo.id, photo.caption || '')}
                                     disabled={captionStatus[photo.id] === 'saving'}
-                                    className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                                    className="text-highland-rust hover:text-purple-400 text-xs font-medium disabled:opacity-50"
                                   >
                                     {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
                                   </button>
@@ -1415,7 +1415,7 @@ export default function AdminDashboardClient() {
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300">
-                            <MessageSquare className="w-4 h-4 text-highland-purple" />
+                            <MessageSquare className="w-4 h-4 text-highland-rust" />
                             Comments
                             {section.comments.length > 0 && (
                               <span className="text-slate-500 font-normal">({section.comments.length})</span>
@@ -1478,7 +1478,7 @@ export default function AdminDashboardClient() {
                       <div>
                         <Link
                           href={`/day/${day.id}`}
-                          className="text-highland-purple hover:text-purple-400 text-sm transition-colors"
+                          className="text-highland-rust hover:text-purple-400 text-sm transition-colors"
                           target="_blank"
                         >
                           View Day {day.id} page →
@@ -1497,7 +1497,7 @@ export default function AdminDashboardClient() {
             the same daySections state and handlers as the day cards above. */}
         <section>
           <h2 className="font-display text-xl font-semibold text-slate-200 mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-highland-purple" />
+            <MapPin className="w-5 h-5 text-highland-rust" />
             Post-Ride: Montreal
           </h2>
 
@@ -1512,7 +1512,7 @@ export default function AdminDashboardClient() {
                   className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-800/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-highland-purple/20 flex items-center justify-center text-highland-purple">
+                    <div className="w-8 h-8 rounded-lg bg-highland-rust/20 flex items-center justify-center text-highland-rust">
                       <Camera className="w-4 h-4" />
                     </div>
                     <div>
@@ -1582,7 +1582,7 @@ export default function AdminDashboardClient() {
                     {/* Diary Entry */}
                     <div>
                       <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
-                        <BookOpen className="w-4 h-4 text-highland-purple" />
+                        <BookOpen className="w-4 h-4 text-highland-rust" />
                         Montreal Diary Entry
                       </label>
                       <textarea
@@ -1595,12 +1595,12 @@ export default function AdminDashboardClient() {
                         }
                         rows={8}
                         placeholder="Write about your time in Montreal..."
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-purple text-sm resize-y"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-highland-rust text-sm resize-y"
                       />
                       <button
                         onClick={() => saveDiary(MONTREAL_DAY_ID)}
                         disabled={section.saving}
-                        className="mt-2 flex items-center gap-2 bg-highland-purple/20 hover:bg-highland-purple/30 border border-highland-purple/30 text-highland-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        className="mt-2 flex items-center gap-2 bg-highland-rust/20 hover:bg-highland-rust/30 border border-highland-rust/30 text-highland-rust px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                       >
                         <Save className="w-3.5 h-3.5" />
                         {section.saving ? 'Saving...' : 'Save Diary'}
@@ -1672,7 +1672,7 @@ export default function AdminDashboardClient() {
                                   type="button"
                                   onClick={() => savePhotoCaption(photo.id, photo.caption || '')}
                                   disabled={captionStatus[photo.id] === 'saving'}
-                                  className="text-highland-purple hover:text-purple-400 text-xs font-medium disabled:opacity-50"
+                                  className="text-highland-rust hover:text-purple-400 text-xs font-medium disabled:opacity-50"
                                 >
                                   {captionStatus[photo.id] === 'saving' ? 'Saving…' : 'Save'}
                                 </button>
@@ -1692,7 +1692,7 @@ export default function AdminDashboardClient() {
                     <div>
                       <Link
                         href="/post-ride"
-                        className="text-highland-purple hover:text-purple-400 text-sm transition-colors"
+                        className="text-highland-rust hover:text-purple-400 text-sm transition-colors"
                         target="_blank"
                       >
                         View Post-ride page →
