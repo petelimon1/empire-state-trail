@@ -1,9 +1,9 @@
 // Elevation-augmented route geometry decoded from each day's Strava route GPX
 // export (GET /api/v3/routes/{id}/export_gpx), downsampled to ~400 points
 // per day. Each point has cumulative distance `d` (km from route start) and
-// elevation `ele` (meters) alongside lat/lon. Used for (1) the elevation
-// profile chart and (2) generating a downloadable GPX per day
-// (app/api/gpx/[dayId]/route.ts). Regenerate if a route changes.
+// elevation `ele` (meters) alongside lat/lon. Used to generate a
+// downloadable GPX per day (app/api/gpx/[dayId]/route.ts). Regenerate if a
+// route changes.
 
 export interface ElevationPoint {
   lat: number;
@@ -30,17 +30,3 @@ function decode(tuples: [number, number, number, number][]): ElevationPoint[] {
 
 // Downsample a day's elevation profile to a small point count for charting.
 // Always keeps the first and last point so the chart spans the full route.
-export function getElevationProfile(dayId: number, maxPoints = 60): { d: number; e: number }[] {
-  const points = ROUTE_ELEVATION_POINTS[dayId];
-  if (!points || points.length === 0) return [];
-  if (points.length <= maxPoints) {
-    return points.map((p) => ({ d: p.d, e: p.ele }));
-  }
-  const step = (points.length - 1) / (maxPoints - 1);
-  const out: { d: number; e: number }[] = [];
-  for (let i = 0; i < maxPoints; i++) {
-    const p = points[Math.round(i * step)];
-    out.push({ d: p.d, e: p.ele });
-  }
-  return out;
-}

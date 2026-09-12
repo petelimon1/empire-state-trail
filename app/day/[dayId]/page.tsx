@@ -25,7 +25,6 @@ import { getAdminSession } from '@/lib/auth';
 import DayHeaderStats from '@/components/DayHeaderStats';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 import LiveTrackFreshness from '@/components/LiveTrackFreshness';
-import { getElevationProfile } from '@/lib/routeElevation';
 
 interface PageProps {
   params: { dayId: string };
@@ -344,7 +343,6 @@ export default async function DayPage({ params }: PageProps) {
               isAdmin={isAdmin}
               garminLivetrackUrl={garminLivetrackUrl}
               garminLivetrackUpdatedAt={garminLivetrackUpdatedAt}
-              elevationProfile={getElevationProfile(dayId)}
             />
           </div>
 
