@@ -151,10 +151,13 @@ export default async function HomePage() {
             Saturday, September 5 – Friday, September 11, 2026
           </p>
 
-          {/* Status Banner */}
-          <div className="mt-10">
-            <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={resolvedActiveDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={activeDayLiveTrack.garmin_livetrack_url} garminUpdatedAt={activeDayLiveTrack.garmin_livetrack_updated_at} completedDays={completedDays} />
-          </div>
+          {/* Status Banner — renders nothing once the trip is over, so no
+              gap is reserved for it in that phase */}
+          {tripInfo.phase !== 'after' && (
+            <div className="mt-10">
+              <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={resolvedActiveDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={activeDayLiveTrack.garmin_livetrack_url} garminUpdatedAt={activeDayLiveTrack.garmin_livetrack_updated_at} completedDays={completedDays} />
+            </div>
+          )}
 
           {/* Stats */}
           <div className="mt-12 text-white/60">
@@ -253,15 +256,7 @@ function StatusBanner({ phase, daysUntil, activeDayId, isPreRideDay, garminUrl, 
   }
 
   if (phase === 'after') {
-    return (
-      <div className="inline-flex items-center gap-3 glass rounded-2xl px-6 py-3 border border-emerald-500/30">
-        <div className="text-2xl">🏆</div>
-        <div className="text-left">
-          <div className="text-emerald-400 font-semibold">Trip Completed!</div>
-          <div className="text-slate-500 text-xs">All <DistanceValue km={TRIP_STATS.totalDistance} /> ridden · Montreal reached</div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   // During trip, with an active LiveTrack session — the only case that
