@@ -8,7 +8,6 @@ import { DayStatus } from '@/types';
 import { createSafeClient } from '@/lib/supabase';
 import { DistanceValue, ElevationValue } from '@/components/UnitValue';
 import LiveTrackFreshness from '@/components/LiveTrackFreshness';
-import TripProgressStrip from '@/components/TripProgressStrip';
 
 export const metadata: Metadata = {
   title: 'Empire State Trail 2026 | Pete & Lena\'s Ride',
@@ -123,12 +122,10 @@ export default async function HomePage() {
   const activeDayLiveTrack = await getActiveDayLiveTrack(resolvedActiveDayId);
 
   const completedDays = Object.values(dayStatuses).filter((s) => s === 'completed').length;
-  const progressPercent = Math.round((completedDays / DAYS_DATA.length) * 100);
 
   const completedDistance = DAYS_DATA
     .filter(d => dayStatuses[d.id] === 'completed')
     .reduce((sum, d) => sum + (d.distance_km ?? 0), 0);
-  const remainingDistance = Math.max(0, TRIP_STATS.totalDistance - completedDistance);
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -136,10 +133,10 @@ export default async function HomePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center overflow-hidden">
-        {/* Hero background — paved trail through fall foliage, Hudson Valley area */}
+        {/* Hero background — Lena riding the trail through the Hudson Valley */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1695596255645-e609fe4c090c?auto=format&fit=crop&w=1920&q=80')" }}
+          style={{ backgroundImage: "url('/images/hero-trail.jpg')" }}
         />
         {/* Minimal dark overlay — heavier at top for nav, lighter in middle, dark at bottom */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80" />
@@ -150,6 +147,10 @@ export default async function HomePage() {
             <span className="block text-2xl sm:text-3xl font-light tracking-widest text-white/50 mt-3">2026</span>
           </h1>
 
+          <p className="text-white/60 text-sm sm:text-base tracking-wide">
+            Saturday, September 5 – Friday, September 11, 2026
+          </p>
+
           {/* Status Banner */}
           <div className="mt-10">
             <StatusBanner phase={tripInfo.phase} daysUntil={tripInfo.daysUntil} activeDayId={resolvedActiveDayId} isPreRideDay={tripInfo.isPreRideDay} garminUrl={activeDayLiveTrack.garmin_livetrack_url} garminUpdatedAt={activeDayLiveTrack.garmin_livetrack_updated_at} completedDays={completedDays} />
@@ -157,45 +158,15 @@ export default async function HomePage() {
 
           {/* Stats */}
           <div className="mt-12 text-white/60">
-            {/* Mobile: 2x2 grid */}
-            <div className="grid grid-cols-2 gap-4 sm:hidden">
+            <div className="flex items-center justify-center gap-10">
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={TRIP_STATS.totalDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Distance</div>
-              </div>
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg"><ElevationValue m={TRIP_STATS.totalElevation} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Elevation</div>
-              </div>
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={completedDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-lg"><DistanceValue km={remainingDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Remaining</div>
-              </div>
-            </div>
-            {/* Desktop: row with dividers */}
-            <div className="hidden sm:flex items-center justify-center gap-10">
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={TRIP_STATS.totalDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Distance</div>
+                <div className="font-display font-semibold text-white text-lg sm:text-xl"><DistanceValue km={completedDistance} /></div>
+                <div className="text-xs tracking-wider uppercase mt-0.5">Total Distance Completed</div>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl"><ElevationValue m={TRIP_STATS.totalElevation} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Elevation</div>
-              </div>
-              <div className="w-px h-8 bg-white/20" />
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={completedDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Completed</div>
-              </div>
-              <div className="w-px h-8 bg-white/20" />
-              <div className="text-center">
-                <div className="font-display font-semibold text-white text-xl"><DistanceValue km={remainingDistance} /></div>
-                <div className="text-xs tracking-wider uppercase mt-0.5">Remaining</div>
+                <div className="font-display font-semibold text-white text-lg sm:text-xl"><ElevationValue m={TRIP_STATS.totalElevation} /></div>
+                <div className="text-xs tracking-wider uppercase mt-0.5">Total Elevation</div>
               </div>
             </div>
           </div>
@@ -214,40 +185,6 @@ export default async function HomePage() {
       {/* Main Content */}
       <main className="relative z-10 bg-slate-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-
-          {/* Progress Section */}
-          <section>
-            <div className="glass-card rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-display text-xl font-semibold text-slate-200">
-                    Journey Progress
-                  </h2>
-                  <p className="text-slate-500 text-sm mt-0.5">
-                    {tripInfo.phase === 'before'
-                      ? `${DAYS_DATA.length} riding days planned`
-                      : `${completedDays} of ${DAYS_DATA.length} days completed`}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold font-display gradient-text">{progressPercent}%</div>
-                  <div className="text-slate-500 text-xs">complete</div>
-                </div>
-              </div>
-              <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-highland-purple to-highland-green rounded-full transition-all duration-1000"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-slate-600">
-                <span>Poughkeepsie</span>
-                <span>Montreal</span>
-              </div>
-
-              <TripProgressStrip days={DAYS_DATA} dayStatuses={dayStatuses} />
-            </div>
-          </section>
 
           {/* Day Cards */}
           <section>
